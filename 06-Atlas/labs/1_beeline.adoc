@@ -1,0 +1,49 @@
+Ticket cache: FILE:/tmp/krb5cc_0
+Default principal: basecamp_no_pii_user@ADV.SEC.CLOUDERA.COM
+
+Valid starting       Expires              Service principal
+09-07-2020 14:54:45  10-07-2020 00:54:45  krbtgt/ADV.SEC.CLOUDERA.COM@ADV.SEC.CLOUDERA.COM
+	renew until 16-07-2020 14:54:42
+[root@tabbruzzese-2 atlas]# beeline -u "jdbc:hive2://tabbruzzese-3.gce.cloudera.com:10000/default;principal=hive/tabbruzzese-3.gce.cloudera.com@ADV.SEC.CLOUDERA.COM;ssl=true;sslTrustStore=/var/lib/cloudera-scm-agent/agent-cert/cm-auto-global_truststore.jks;sslTrustStorePassword=cloudera" 
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/cloudera/parcels/CDH-7.1.1-1.cdh7.1.1.p0.2418016/jars/log4j-slf4j-impl-2.10.0.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/cloudera/parcels/CDH-7.1.1-1.cdh7.1.1.p0.2418016/jars/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+ERROR StatusLogger No log4j2 configuration file found. Using default configuration: logging only errors to the console. Set system property 'log4j2.debug' to show Log4j2 internal initialization logging.
+WARNING: Use "yarn jar" to launch YARN applications.
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/cloudera/parcels/CDH-7.1.1-1.cdh7.1.1.p0.2418016/jars/log4j-slf4j-impl-2.10.0.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/cloudera/parcels/CDH-7.1.1-1.cdh7.1.1.p0.2418016/jars/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://tabbruzzese-3.gce.cloudera.com:10000/default;principal=hive/tabbruzzese-3.gce.cloudera.com@ADV.SEC.CLOUDERA.COM;ssl=true;sslTrustStore=/var/lib/cloudera-scm-agent/agent-cert/cm-auto-global_truststore.jks;sslTrustStorePassword=cloudera
+Connected to: Apache Hive (version 3.1.3000.7.1.1.0-345)
+Driver: Hive JDBC (version 3.1.3000.7.1.1.0-345)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 3.1.3000.7.1.1.0-345 by Apache Hive
+0: jdbc:hive2://tabbruzzese-3.gce.cloudera.co> select * from test.data;
+INFO  : Compiling command(queryId=hive_20200709151924_dbe4dcc7-b0ac-444d-b02c-6ae21f659378): select * from test.data
+INFO  : Semantic Analysis Completed (retrial = false)
+INFO  : Created Hive schema: Schema(fieldSchemas:[FieldSchema(name:data.name, type:string, comment:null), FieldSchema(name:data.age, type:bigint, comment:null), FieldSchema(name:data.address, type:string, comment:null), FieldSchema(name:data.sin, type:string, comment:null), FieldSchema(name:data.credit_card, type:bigint, comment:null), FieldSchema(name:data.country, type:string, comment:null)], properties:null)
+INFO  : Completed compiling command(queryId=hive_20200709151924_dbe4dcc7-b0ac-444d-b02c-6ae21f659378); Time taken: 0.11 seconds
+INFO  : Executing command(queryId=hive_20200709151924_dbe4dcc7-b0ac-444d-b02c-6ae21f659378): select * from test.data
+INFO  : Completed executing command(queryId=hive_20200709151924_dbe4dcc7-b0ac-444d-b02c-6ae21f659378); Time taken: 0.005 seconds
+INFO  : OK
++------------+-----------+---------------------------+-----------+-------------------+---------------+
+| data.name  | data.age  |       data.address        | data.sin  | data.credit_card  | data.country  |
++------------+-----------+---------------------------+-----------+-------------------+---------------+
+| Homer      | 11        | nnn Xxxxxxxxx Xxxxxxx     | NULL      | 1111111111114026  | US            |
+| David      | 11        | nn Xxxxxx Xxxxx           | NULL      | 1111111111117485  | France        |
+| Mike       | 11        | n Xxxxxx Xxxxx            | NULL      | 1111111111115454  | Germany       |
+| John       | 11        | nn Xxxxxx Xxxxx           | NULL      | 1111111111110145  | UK            |
+| Roger      | 11        | nnnnn Xxxxx Xxxxxx Xxxxx  | NULL      | 1111111111116863  | US            |
+| Natale     | 11        | nn Xxxxxxx Xxx            | NULL      | 1111111111117765  | Gemany        |
+| Jane       | 11        | nnnn Xxxxxxxx Xxxx        | NULL      | 1111111111113041  | US            |
+| Michelle   | 11        | nnnnn Xxxxx Xxxxx         | NULL      | 1111111111117115  | Germany       |
+| Julie      | 11        | nnnn Xxxxxxxx Xxxx        | NULL      | 1111111111118448  | France        |
+| Maria      | 11        | nnnn Xxxxxxx Xxxx         | NULL      | 1111111111114833  | UK            |
+|            | NULL      | NULL                      | NULL      | NULL              | NULL          |
+|            | NULL      | NULL                      | NULL      | NULL              | NULL          |
++------------+-----------+---------------------------+-----------+-------------------+---------------+
+12 rows selected (0,284 seconds)

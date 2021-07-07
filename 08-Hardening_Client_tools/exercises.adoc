@@ -1,0 +1,52 @@
+
+= Security Hardening
+
+
+== Security Scanner
+
+1. Download the link:https://github.infra.cloudera.com/tristan/sec-score[security scanner]
+on the edge node of your cluster or your personal machine.
+1. Follow the instructions in the readme to compile and run the scanner.
+* To download a configuration json use a command like
+* `curl --insecure -u <user>:<password> https://<cm_URL>:7183/api/v19/cm/deployment > dep.json`
+1. Upload the results of the scanner in html format to lab/pre.html
+* NOTE: The scan utility is pending a major change to remove some of the legacy Cloudere ahecks, and add CDP checks.
+None the less the results are still valid and should still be run.
+1. Fix all of the issues that can be fixed outlined in the scanner
+1. Run the scanner again and upload the results to lab/post.html
+
+
+== BONUS: Client Access Code
+
+==== Kafka
+1. Write a command to connect to a Kafka cluster from the command line and write massage
+1. Write a command to coonect to kafka and read from message queue
+1. Write a command to run benchmark of kafka cluster
+1. Put the kafka commands in the file lab/kafka.adoc
+
+==== HBase
+
+1. Download code from the following link:https://github.infra.cloudera.com/jlord/hbase-example[github project] and run against HBase
+1. Document needed modifications in lab/hbase.adoc
+
+==== JDBC
+
+1. Run the following link:https://github.com/onefoursix/Cloudera-Impala-JDBC-Example/[JDBC code]
+* Make sure you modify the port and URL so the JDBC connection goes through knox!
+1. Try to run the code to understand how to use the Impala / Hive JDBC driver.
+1. Put the JDBC connection string for Hive in the file lab/hbase.adoc
+
+==== Spark Streaming
+
+1. Download the spark streaming code from link:https://docs.cloudera.com/runtime/7.2.0/developing-spark-applications/topics/spark-streaming-example.html[this location] and run it.
+
+* This code needs access to kafka
+* Make sure you give it 2 keytabs ( better said 2 copies of the same keytab)
+** One for the driver to say alive
+** One for the executors to be able to connect to kafka
+
+1. put the command to run the code into lab/spark.adoc
+
+=== Close things out
+
+** Label the git issue as `in review`

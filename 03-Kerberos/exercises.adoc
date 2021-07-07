@@ -1,0 +1,207 @@
+== Kerberos LAB
+
+== Kerberos Lab Prepare
+
+* Create an Issue called `Kerberos labs`
+** Add it to the Lab milestone
+** Label the issue as `started`
+** Assign yourself to the Issue
+
+Here you have a choice. If you have struggling skip the MIT KDC exercises and
+go directly to " Prepare AD for Kerberos deployment"
+
+=== We will first Integrate our cluster with MIT KDC
+
+NOTE: MIT KDC is not recommended for production systems anymore but usable to
+test or practice the use of Kerberos
+
+Before Kerberos can be enabled with MIT KDC as the Kerberos sever we must first install MIT KDC
+
+On the CM nodes of the cluster install and configure MIT KDC.
+
+You can choose the realm name to be. <YOUR_GITHUB_ID>.COM
+
+The following are the general steps needed
+
+1. Install MIT KDC RPM
+* `yum install krb5-server`
+1. Edit the Kerberos server config file location `/var/kerberos/krb5kdc/kdc.conf`.
+* Use the sample link:./resources/kdc.conf[config file] in resources
+1. Edit the Kerberos client config file located at `/etc/krb5.conf`
+* Use the sample link:./resources/krb5.conf[config file] in resources
+1. Run the command to initialize kerberos server
+* `/usr/sbin/kdb5_util create -s`
+1. Add a new user principal to the kerberos database ( for CM to use to create users )
+*  kadmin.local
+*  addprinc cloudera-scm@<REALM>
+1. Edit the kerberos acls file `/var/kerberos/krb5kdc/kadm5.acl` file to make this new user admin
+*  Add the line `cloudera-scm@<YOUR_REALM>  *`
+1. Start Kerberos Server
+*  systemctl start krb5kdc
+* systemctl start kadmin
+1. Test everything is working correctly by testing kinit with the cloudera-scm user
+* kinit cloudera-scm
+* You should see the line `Default principal: cloudera-scm@<YOUR_REALM>`
+
+Once the server is up and running, deploy Kerberos client on all nodes:
+
+* yum -y install krb5-workstation krb5-libs
+* copy working /etc/krb5.conf to all nodes in the cluster
+
+Now It's time to enable Kerberos on the cluster.
+
+Follow the instructions in the link:https://docs.cloudera.com/cloudera-manager/7.1.1/security-kerberos-authentication/topics/cm-security-kerberos-enabling-step4-kerberos-wizard.html[public docs]
+to enable Kerberos on the cluster using MIT KDC
+
+* You can skip all of the Active direcry
+
+IMPORTANT: Modify the "Kerberos Encryption Types" to be aes256-cts.
+DO NOT leave the default hmac4, it is no longer considered secure!
+
+Once the cluster has rebooted and everything is green test the cluster.
+
+1. Create another use in the MIT kerberos database.
+1. Kinit as the user
+1. Run `hdfs dfs -ls /` and video the results.
+
+Take command used for the 3 sets above and place them into the file `lab/mit.adoc`
+
+Next Step we will migrate the cluster to use AD as the KDC, and move away from MIT Kerberos.
+Stop the cluster the change the Kerberos Server so things don't start to fail during migration
+
+=== Prepare AD for Kerberos deployment
+
+
+We have an internal AD deployment available for development debugging and training.
+We will use that as our identity provider for the next few days.
+
+These are the details of how to connect to the AD server
+
+|===
+| Key  | Value
+
+| Protocol
+| RDP ( windows remote desktop )
+
+| Server
+| w2k19-gw.adv.sec.cloudera.com
+
+| Admin User
+| sec-admin
+
+| Password
+| Password1
+
+| Organizational Unit ( OU )
+| OU=Clusters,OU=sec-basecamp-2020,OU=clusters,OU=Cloudera,dc=adv,dc=sec,dc=cloudera,dc=com
+
+| KDC Servers
+| w2k19-1.adv.sec.cloudera.com, w2k19-2.adv.sec.cloudera.com, w2k19-3.adv.sec.cloudera.com
+
+| Details Wiki Page
+| https://cloudera.atlassian.net/wiki/spaces/CS/pages/89817894/COE+Windows+Test+Environment
+
+| Relam
+| ADV.SEC.CLOUDERA.COM
+
+|===
+
+To Prepare AD for Cloudera Kerberos deployment following the following steps
+
+1. Login to AD and create a user for yourself
+* Username should be <your_github_id>
+* Add the user to the “sec-admins” group
+* Details on how to perform these steps in AD are in
+link:https://cloudera.atlassian.net/wiki/spaces/CS/pages/129406655/User+and+group+administration+in+Active+Directory[this wiki page]
+1. Create an New OU names bc-<your_github_id>
+1. Delegate That OU to the "cm-admin" user
+* Details on that process available in link:https://blog.cloudera.com/new-in-cloudera-manager-5-1-direct-active-directory-integration-for-kerberos-authentication/[this blog]
+
+
+NOTE: Multiple users trying to log into the w2k19-gw host at the same time with the shared
+account will kick each other out! Be mindful of using the sec-admin user for as little as possible
+
+NOTE: The AD instance has a 50 Client license for RDP access (but note there is not enough
+memory/cpu to have 50 people on at same time so log out when you are done
+
+
+=== Prepare the cluster nodes for Kerberos deployment
+
+* Deploy and Install the Kerberos client OS-specific packages for the cluster link:https://docs.cloudera.com/cloudera-manager/7.1.1/security-kerberos-authentication/topics/cm-security-kerberos-enabling-intro.html[specific rpm in the documentation]
+** If you did the MIT KDC exercises this is done already
+* Deploy a kerberos client ( krb5.conf ) on all hosts in the correct location /etc/krb5.conf. Sample krb5.conf in the resources folder
+** If you did the MIT KDC exercises you will need to modify the krb5.conf file to point the AD servers now with that REALM
+* Test kerberos deployment by running
+** `kinit cm-admin`
+** `klist`
+** You should see the line `Default principal: cm-admin@ADV.SEC.CLOUDERA.COM`
+* DO NOT CONTINUE UNTIL THE ABOVE WORKS ON ALL NODES!
+
+
+== Kerberos Exercise
+
+Deploy Kerberos on your cluster. Use our public documentation for instructions.
+Follow the instructions link:https://docs.cloudera.com/cloudera-manager/7.1.1/security-kerberos-authentication/topics/cm-security-kerberos-enabling-step4-kerberos-wizard.html[in the documentation]
+
+* If you have done the MIT exercises the enable Keberos button will no longer be available.
+Go To Administration -> Security -> Kerberos Credentials -> Setup KDC  For Cloudera Manager. It's the same wizard
+
+
+When in double set the following configurations thought the wizard.
+
+
+|===
+| Property  | Value
+
+| KDC Type
+| Active Directory
+
+| Kerberos Encryption Types
+| Same as in the krb5.conf
+
+| Kerberos Security Realm
+| From Above
+
+| KDC Server Host
+| From Above
+
+| KDC Admin Server Host
+| Same as KDC Server Host
+
+
+| Active Directory Suffix
+| OU You created
+
+| Active Directory Delete Accounts on Credential Generation
+| Check
+
+| Active Directory Set Encryption Types
+| Check
+
+| Active Directory Account Prefix:
+| <your_github_id>- ( first 10 characters if longer)
+
+| "manage krb5.conf"
+| Uncheck
+
+| Cloudera Manager Account
+| cm-admin
+
+| Cloudera Manager Account Password
+| Password1
+
+
+|===
+
+Once the wizard is completed, if you have done the MIT KDC exercise,
+you will need to click on `Generate Missing Credentials` ( in the same page as before )
+* Once that completes successfuly start the cluster and deploy new client configs.
+
+If you have not done the MIT exercises, the wizard will generate credentails and reboot the cluster for you
+
+Once complete take a screenshot of the kerberos users created by CM and place it in lab/kerberos.png
+
+
+=== Close things out
+
+** Label the git issue as `in review`

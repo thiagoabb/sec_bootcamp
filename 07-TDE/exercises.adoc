@@ -1,0 +1,82 @@
+
+== TDE Execises
+
+
+The entire process for deploying TDE is  available link:https://docs.cloudera.com/cloudera-manager/7.1.1/security-encrypting-data-at-rest/topics/cm-security-enable-hdfs-encryption-using-navigator-kts.html[in the documentation]
+though they are somewhat sparing. I will enumerate the steps here
+
+
+=== Add 2 new hosts to the cluster
+
+1. Makes sure you have 2 new vms in GCE cloud for the KTS servers. T
+* These instances should already be provisioned for you, if not remind the instructor
+
+1. Prepare these 2 instances for adding into the cluster.
+*  Create 2 new certificates for the 2 hosts
+*  Sign the certificates as you did before as we will need to upload them to CM for auto TLS
+
+1. Deploy rndtool on KTS nodes to ensure there is sufficient entropy
+Following the instructions link:https://docs.cloudera.com/cdp/latest/release-guide/topics/cdpdc-data-at-rest-encryption-requirements.html[in the documentation]
+* Ensure the entropy rises about 3000 on both KTS nodes
+
+1. Go to Cloudera Manager and add the 2 new nodes.
+* Go to Hosts -> All Hosts -> Add Hosts
+* Add the hosts juts to CM and not the cluster
+** Don't forget to configure Kerberos on the new nodes!!!
+* Run the presented curl command to uploaded the new certificates
+** Don't forget to modify the paths in the curl command
+* The rest should be straight forward for adding the 2 new hosts
+
+=== Deploy a KTS cluster
+
+NOTE: You will need to download the KTS parcel and make it available in CM. You can choose to create a local parcel repo the instructions are link:https://docs.cloudera.com/cloudera-manager/7.1.1/installation/topics/cdpdc-using-internally-hosted-remote-parcel-repo.html[in the documentation]
+, or you can use the easy path and just use th local parcel repo location. Instruction link:https://docs.cloudera.com/cloudera-manager/7.1.1/installation/topics/cdpdc-using-local-parcel-repository.html[in the documentation]
+
+1. Follow the link:https://docs.cloudera.com/cloudera-manager/7.1.1/installation/topics/cdpdc-installing-key-trustee-using-cm.html[instructions in the documentation] to deploy a Key Trustee Server CLuster
+* In CM there is a a Add Cluster button in the right upper corner.
+* For the KTS parcel, the sha is already created, just need to copy it.
+* Further you don't need to delete anything from the local parcel folder
+
+=== Deploy and cofigure Ranger KMS cluster
+
+1. Following the public documentation to deploy link:https://docs.cloudera.com/cloudera-manager/7.1.1/installation/topics/cdpdc-installing-ranger-kms-with-key-trustee-server.html[Ranger KMS with Key Trustee Server]
+1. Once deployed login to ranger kms
+* Be aware you need to login to ranger with the 'keyadmin' user not knox login user
+
+=== Check and configure KMS
+
+1. Validate key commands work link:https://docs.cloudera.com/cloudera-manager/7.1.1/security-encrypting-data-at-rest/topics/cm-security-validate-hadoop-key-operations.html[follow the documentation]
+1. Create an encryption zone link:https://docs.cloudera.com/cloudera-manager/7.1.1/security-encrypting-data-at-rest/topics/cm-security-create-encryption-zones.html[follow the documentation]
+1. Create a simple test file with "hello world" in it, and upload the file to the encrypted zone
+Following the instructions link:https://docs.cloudera.com/cloudera-manager/7.1.1/security-encrypting-data-at-rest/topics/cm-security-add-files-to-encryption-zone.html[in the documentation]
+1. Take the command used to create an encrypted zone and load data into the file "lab/tde.adoc"
+
+
+=== Navigator Encrypt
+
+1. Download Navigator Encrypt software from link:https://www.cloudera.com/downloads/navigator/encrypt/7-1-0.html[cloudera download]
+1. Create a local package repository for the Navigator Encrypt package follow link:https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/cm_ig_create_local_package_repo.html#configure_cm_internal_repo[the documentation]
+* You don't need to create repos for all of the cloudera packages, just create a repo for Navigator Encrypt
+* Don't forget to create the yum.repo file to link to configure the host to use the internal repository
+1. Install Navigator Encrypt following link:https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/navigator_encrypt_install.html[the documentation]
+* Make sure you install rng tools on the node to deal with entropy requirements. Follow link:https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/navigator_encrypt_install.html#concept_hwc_vbr_hdb[the instructions]
+1. Capture the output of "lsmod" and place the results in the /lab/modules.adoc
+1. Once Naviagor encrypt is install register Nav Encrypt with the Key Trustee Server.
+Follow link:https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/navigator_encrypt_register.html#concept_otw_g23_kq[the documentation]
+1. Next prepare for encrypting, https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/navigator_encrypt_prepare.html#concept_jht_2z1_ws[follow the documentation]
+* We will use the instructions for a loopback device. THIS IS NOT RECOMMENDED FOR PRODUCTION. Use a whole device driver instead.
+1. Once everything is prepared, stop the Kafka service and encrypt the kafka data folder
+* Use link:https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/navigator_encrypt_data.html#concept_nny_dn3_kq[the documentation] for the encrypt command
+1. Put Navigator encrypt into permissive mode, start kafka and capture the acls needed for kafka.
+* Following the instructions link:https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/navigator_encrypt_acl.html[in the documentation]
+1. Restart Kafka and make sure everything is working
+1. Capture all of the commands for installing nav-encrypt, to registering preparing and encrypting
+and put the commands in lab/nav.adoc
+
+=== Close things out
+
+** Label the git issue as `in review`
+
+
+
+

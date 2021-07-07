@@ -1,0 +1,105 @@
+== KNOX and SSSD Exercises
+
+== KNOX Lab Prepare
+
+* Create an Issue called `KNOX labs`
+** Add it to the Lab milestone
+** Label the issue as `started`
+** Assign yourself to the Issue
+
+== Deploy SSSD
+
+For the SSSD deployment use the following parameter. They are the same parameter used
+for Kerberos deployment but given here for convenience.
+
+|===
+|   Parameter | Value
+
+| Realm
+| ADV.SEC.CLOUDERA.COM
+
+| Computers OU
+| "ou=computers,ou=sec-basecamp-2020,ou=clusters,ou=Cloudera,dc=adv,dc=sec,dc=cloudera,dc=com"
+
+| AD Server
+| w2k19-1.adv.sec.cloudera.com
+
+| AD User to join computers to domain
+| cm-admin
+
+| AD User to join computers to domain password
+| Password1
+
+|===
+
+1. Deploy the needed packages for SSSD
+* ```yum -y install sssd oddjob-mkhomedir authconfig sssd-krb5 sssd-ad sssd-tools adcli```
+1. Edit the needed configuration files /etc/sssd/sssd.conf and /etc/nscd.conf configuration file. Sample config file are available at
+link:./resources/sssd.conf[resources/sssd.conf] and link:./resources/nscd.conf[resources/nscd.conf]
+* SSSD id the demon providing the bridge between the linux and the AD domain controled
+* NSCD is a cashing demon that gets in the way of sssd if not properly configured and breaks things!
+1. Once the configuration files are setup try to join the host to the domain
+* kinit cm-admin
+* adcli join -v --domain-controller=<AD Server> --domain-ou="<COMPUTERS OU>" --login-user="<AD_ADMIN_USER>" --login-ccache="/tmp/krb5cc_0" -v --show-details
+1. Next setup SSSD
+* chmod 0600 /etc/sssd/sssd.conf
+* authconfig --enablesssd --enablesssdauth --enablemkhomedir --update
+1. Finally start / restart nscd and sssd
+* systemctl restart sssd.service
+* systemctl restart nscd.service
+* systemctl enable nscd.service
+* systemctl enable sssd.service
+1. Test sssd is working. Run the command
+* id cm-admin
+* you shoud see:
+** `uid=1952402104(cm-admin) gid=1952400513(domain_users) groups=1952400513(domain_users)`
+
+One successful take the adcli join commands and the output if id <your_github_id> and put it in
+the file lab/sssd.adoc
+
+Don't forget to repeat the process for every node in the cluster!!!
+
+NOTE: Cloudera support does not officially support sssd so make sure the customer does the deployment
+of SSSD as they ( along with RedHat ) will need to support SSSD if anything goes wrong!
+
+
+=== Deploy KNOX
+
+1. Use Cloudera Manager to deploy the knox service. Follow the link:https://docs.cloudera.com/runtime/7.2.0/knox-authentication/topics/cdpdc-knox-install.html[documentation]
+
+1. Setup admin group for knox.
+
+1. Check you can login to the different services using the KNOX URLs ( skip CM )
+1. Check you can not access the NameNode UI without KNOX
+
+1. Configure LDAP authentication for Cloudera Manager.
+Use the  link:https://docs.cloudera.com/cloudera-manager/7.1.1/security-kerberos-authentication/topics/cm-security-external-authentication-ldap.html[public documentation] as a guide.
+* Recomend the use the LDAP seach command to build a proper LDAP query to seach for users.
+* Than plug in the different components
+* Don't forget to add a group your user is a member of to the full admins groups in CM
+
+
+1. Configure CM to proxy though knox. Use link:https://docs.cloudera.com/runtime/7.2.0/knox-authentication/topics/security-knox-proxy-cm-through-knox.html[this documentation]
+
+1. Put all of the URLs for all of the UIs going though knox in the file.
+lab/knox.adoc
+
+=== Configure HDFS supergroup.
+
+Now that sssd works, let's use it.
+
+1. Find a group your user is a member of
+* at the OS run the command `id -Gn <username>`
+
+1. Add on of those group ( not domain users ) to the "Superuser Group" parameter in HDFS configuration
+
+1. Kinit as your user and see if you have HDFS like permissions.
+* Now you no longer need to use the hack where you access HDFS keytab!
+
+
+=== Close things out
+
+** Label the git issue as `in review`
+
+
+

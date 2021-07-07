@@ -1,0 +1,15 @@
+[root@tabbruzzese-1 certs]# openssl pkcs12 -export -out tabbruzzese-1.pkcs12 -inkey tabbruzzese-1.gce.cloudera.com.key -in tabbruzzese-1-concat.csr -passin pass:cloudera -passout pass:cloudera
+
+
+
+[root@tabbruzzese-1 certs]# keytool -v -importkeystore -srckeystore tabbruzzese-1.pkcs12 -srcstoretype PKCS12 -destkeystore tabbruzzese-1.jks -deststoretype JKS
+Importando armazenamento de chaves tabbruzzese-1.pkcs12 to tabbruzzese-1.jks...
+Informe a senha da área de armazenamento de chaves de destino:  
+Informe novamente a nova senha: 
+Informe a senha da área de armazenamento de chaves de origem:  
+Entrada do alias 1 importada com êxito.
+Comando de importação concluído:  1 entradas importadas com êxito, 0 entradas falharam ou foram canceladas
+[Armazenando tabbruzzese-1.jks]
+
+Warning:
+O armazenamento de chaves JKS usa um formato proprietário. É recomendada a migração para PKCS12, que é um formato de padrão industrial que usa "keytool -importkeystore -srckeystore tabbruzzese-1.jks -destkeystore tabbruzzese-1.jks -deststoretype pkcs12".

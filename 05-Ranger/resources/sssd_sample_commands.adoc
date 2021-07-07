@@ -1,0 +1,67 @@
+= KNOX
+
+Knox is basically a gateway into the cluster.
+
+
+
+
+== Sample SSSD configuration configuration
+
+Files that are required for SSSD to work:
+
+* /etc/samba/smb.conf
+* /etc/krb5.conf
+* /etc/sssd/sssd.conf
+* /etc/nscd.conf
+
+Notes on these files:
+
+===== smb.conf
+
+Your short hostname mush be shorter than 15 characters. It it is longer than 15 characters,
+this can happen, for example, if you are using AWS machines and end up with a hostname
+like ip-172-31-XXX-YYY.ec2.internal.  In that case, you will have to come up with a strategy
+to shorten the hostname in the Samba configuration to conform to the AD limitations on computer
+object names.  Certainly you can change the hostname to something else, but if this is done,
+be sure to have the correct forward and reverse DNS zones setup so SSSD can update the A and
+PTR records.
+
+===== sssd.conf
+
+The most important property is to ensure that enumerate is set to false.
+With enumeration enabled against a large LDAP directory, significant delays will happen,
+and will continue to happen after every periodic cache rebuild.
+With enumeration turned off, all queries are made on demand, unless a recent query result
+is stored in the cache.  Restrict the ldap_group_search_base as required, if all of the
+groups to be resolved for the machine can be restricted to a more narrow LDAP OU.
+Note that the above configuration assumes that the users and groups that are to be
+integrated to Linux have all the POSIX attributes set, such as uidNumber and gidNumber.
+If this is not the case, set ldap_id_mapping to true.
+Be aware that there have been anecdotes indicating that the generated IDs are not necessarily
+consistent across all hosts.  I personally have not seen this, but others have.
+
+Additionally, the permissions of /etc/sssd/sssd.conf must be 600, and owned by root:root.
+
+===== mscd.conf
+
+NSCD can be used with SSSD, provided they are not overlapping in what they are caching.
+NSCD should only be caching DNS lookups.  SSSD handles everything else.
+This is described on Red Hat's documentation portal.
+
+=== For further details:
+
+https://blog.cloudera.com/best-practices-guide-for-systems-security-services-daemon-configuration-and-installation-part-1/
+
+
+==== Sample commands
+
+```bash
+net ads join createupn=host/<fqdn>@CLOUDERA.LOCAL createcomputer=ou=somepath,dc=cloudera,dc=local -S your-ad-server.cloudera.local -U joinuser%joinpassword
+rm -f /etc/krb5.keytab
+net ads keytab create -S your-ad-server.cloudera.local -U joinuser%joinpassword
+authconfig --enablesssd --enablesssdauth --enablemkhomedir --update
+chkconfig sssd on
+chkconfig nscd on
+service sssd restart
+service nscd restart
+```

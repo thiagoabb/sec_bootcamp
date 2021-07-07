@@ -1,0 +1,60 @@
+[root@tabbruzzese-1 sssd]# adcli join -v --domain-controller=w2k19-1.adv.sec.cloudera.com --domain-ou="OU=bc-tabbruzzese,OU=clusters,OU=Cloudera,dc=adv,dc=sec,dc=cloudera,dc=com" --login-user="cm-admin" --login-ccache="/tmp/krb5cc_0" -v --show-details
+ * Sending NetLogon ping to domain controller: w2k19-1.adv.sec.cloudera.com
+ * Received NetLogon info from: w2k19-1.adv.sec.cloudera.com
+ * Discovered domain name: adv.sec.cloudera.com
+ * Calculated computer account name from fqdn: TABBRUZZESE-1
+ * Calculated domain realm from name: ADV.SEC.CLOUDERA.COM
+ * Wrote out krb5.conf snippet to /tmp/adcli-krb5-pZnHRb/krb5.d/adcli-krb5-conf-lN25fy
+ * Using GSS-SPNEGO for SASL bind
+ * Looked up short domain name: ADV
+ * Looked up domain SID: S-1-5-21-3370032993-78397307-1084412869
+ * Using fully qualified name: tabbruzzese-1.gce.cloudera.com
+ * Using domain name: adv.sec.cloudera.com
+ * Using computer account name: TABBRUZZESE-1
+ * Using domain realm: adv.sec.cloudera.com
+ * Calculated computer account name from fqdn: TABBRUZZESE-1
+ * Generated 120 character computer password
+ * Using keytab: FILE:/etc/krb5.keytab
+ * Computer account for TABBRUZZESE-1$ does not exist
+ ! Couldn't find a computer container in the ou, creating computer account directly in: OU=bc-tabbruzzese,OU=clusters,OU=Cloudera,dc=adv,dc=sec,dc=cloudera,dc=com
+ * Calculated computer account: CN=TABBRUZZESE-1,OU=bc-tabbruzzese,OU=clusters,OU=Cloudera,dc=adv,dc=sec,dc=cloudera,dc=com
+ * Encryption type [17] not permitted.
+ * Encryption type [16] not permitted.
+ * Encryption type [23] not permitted.
+ * Encryption type [3] not permitted.
+ * Encryption type [1] not permitted.
+ * Created computer account: CN=TABBRUZZESE-1,OU=bc-tabbruzzese,OU=clusters,OU=Cloudera,dc=adv,dc=sec,dc=cloudera,dc=com
+ * Sending NetLogon ping to domain controller: w2k19-1.adv.sec.cloudera.com
+ * Received NetLogon info from: w2k19-1.adv.sec.cloudera.com
+ * Set computer password
+ * Retrieved kvno '2' for computer account in directory: CN=TABBRUZZESE-1,OU=bc-tabbruzzese,OU=clusters,OU=Cloudera,dc=adv,dc=sec,dc=cloudera,dc=com
+ * Checking RestrictedKrbHost/tabbruzzese-1.gce.cloudera.com
+ *    Added RestrictedKrbHost/tabbruzzese-1.gce.cloudera.com
+ * Checking RestrictedKrbHost/TABBRUZZESE-1
+ *    Added RestrictedKrbHost/TABBRUZZESE-1
+ * Checking host/tabbruzzese-1.gce.cloudera.com
+ *    Added host/tabbruzzese-1.gce.cloudera.com
+ * Checking host/TABBRUZZESE-1
+ *    Added host/TABBRUZZESE-1
+ * Discovered which keytab salt to use
+ * Added the entries to the keytab: TABBRUZZESE-1$@ADV.SEC.CLOUDERA.COM: FILE:/etc/krb5.keytab
+ * Added the entries to the keytab: host/TABBRUZZESE-1@ADV.SEC.CLOUDERA.COM: FILE:/etc/krb5.keytab
+ * Added the entries to the keytab: host/tabbruzzese-1.gce.cloudera.com@ADV.SEC.CLOUDERA.COM: FILE:/etc/krb5.keytab
+ * Added the entries to the keytab: RestrictedKrbHost/TABBRUZZESE-1@ADV.SEC.CLOUDERA.COM: FILE:/etc/krb5.keytab
+ * Added the entries to the keytab: RestrictedKrbHost/tabbruzzese-1.gce.cloudera.com@ADV.SEC.CLOUDERA.COM: FILE:/etc/krb5.keytab
+[domain]
+domain-name = adv.sec.cloudera.com
+domain-realm = ADV.SEC.CLOUDERA.COM
+domain-controller = w2k19-1.adv.sec.cloudera.com
+domain-short = ADV
+domain-SID = S-1-5-21-3370032993-78397307-1084412869
+naming-context = DC=adv,DC=sec,DC=cloudera,DC=com
+domain-ou = OU=bc-tabbruzzese,OU=clusters,OU=Cloudera,dc=adv,dc=sec,dc=cloudera,dc=com
+[computer]
+host-fqdn = tabbruzzese-1.gce.cloudera.com
+computer-name = TABBRUZZESE-1
+computer-dn = CN=TABBRUZZESE-1,OU=bc-tabbruzzese,OU=clusters,OU=Cloudera,dc=adv,dc=sec,dc=cloudera,dc=com
+os-name = redhat-linux-gnu
+[keytab]
+kvno = 2
+keytab = FILE:/etc/krb5.keytab

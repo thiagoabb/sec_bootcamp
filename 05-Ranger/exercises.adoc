@@ -1,0 +1,100 @@
+= Ranger Exercise
+
+== Ranger Lab Prepare
+
+* Create an Issue called `Ranger labs`
+** Add it to the Lab milestone
+** Label the issue as `started`
+** Assign yourself to the Issue
+
+=== Setup the Data
+
+Take the file `resources/data.csv` from the repo and upload it into your cluster as a table
+
+* you may think that is trivial, I assure you it is not
+* You can use any path you would like, one path can be
+1. Copy the file onto one of the node of the cluster
+2. Load the file into home folder in HDFS
+3. Login to HUE and use the importer tool to create a table
+
+=== Setup Users & Groups
+
+Remember hadoop takes the user from the kerberos principal
+
+* kinit some_dude@MYREALM -> user is some_dude ( does not matter your linux user )
+
+Groups are extracted from the OS with the `id -GN` or (`getent` for ranger) command.
+
+* so the OS groups some_dude is what you authorise in Ranger
+
+Hence on all machines setup the following users an groups via SSSD.
+
+|===
+|User |Group
+
+|basecamp_no_pii_user
+|basecamp_no_pii_access
+
+|basecamp_us_user
+|basecamp_us_access
+
+|basecamp_evening_user
+|basecamp_evening_access
+
+|basecamp_eu_user
+|basecamp_eu_access
+
+|===
+
+=== Deploy Security Tools
+
+1. Deploy Infra Solr on one of the worker nodes of the cluster
+1. Deploy HBase on at least one of the worker nodes of the cluster
+1. Deploy Kafka across 3 of the worker nodes of the cluster
+1. Deploy Ranger on one of the Master servers in the cluster
+1. Go though each service in CM and make sure the Ranger Authorization check box is ticked.
+* For example in HDFS the propery is called `Enable Ranger Authorization`
+* Some more information link:https://docs.cloudera.com/cloudera-manager/7.0.3/installation/topics/cdpdc-additional-steps-ranger.html[in the documentation]
+1. Go into Ranger and see if the plugins are available.
+* If the plugin do not show up in each category you might need to "Setup Ranger Pligin Service".
+It is an option in the ranger CM page under Actions.
+
+=== Ranger Policies
+
+Login to Ranger and configure the following Policies on the data table you created above
+
+1. basecamp_no_pii_user should not see the pii data columns. That is Age and Address
+using link:https://docs.cloudera.com/runtime/7.0.3/security-ranger-authorization/topics/security-ranger-resource-based-column-masking-in-hive-with-ranger-policies.html[column making]
+1. Grant access to your table to basecamp_no_pii_user and basecamp_us_user using link:https://docs.cloudera.com/runtime/7.0.3/security-ranger-authorization/topics/security-ranger-resource-policy-configure-hive.html[resource based policy]
+1. basecamp_no_pii_user should not see the data in the the pii columns. That is Age and Address
+using link:https://docs.cloudera.com/runtime/7.0.3/security-ranger-authorization/topics/security-ranger-resource-based-column-masking-in-hive-with-ranger-policies.html[column masking]
+1. basecamp_us_user should only see rows of data where the location is us
+using link:https://docs.cloudera.com/runtime/7.0.3/security-ranger-authorization/topics/security-ranger-row-level-filtering-in-hive-with-ranger-policies.html[row level filtering]
+1. basecamp_evening_user should only see the data during the evening using
+link:https://docs.cloudera.com/runtime/7.0.3/security-ranger-authorization/topics/security-ranger-time-bound-policy-create.html[time-bound policy]
+1. basecamp_no_pii_user should not be allowed to query Age and Address columns at the same time using link:https://cwiki.apache.org/confluence/display/RANGER/Ranger+-+DGI+Hive+Prohibition+Policy[prohibition policies]
+
+==== Bonus
+
+1. Allow all users to access their own HDFS user directory using link:https://docs.cloudera.com/runtime/7.0.3/security-ranger-authorization/topics/security-ranger-resource-policies-wildcards-variables.html [variables]
+1. Create a new Security Zone and assign any resource in your cluster to that zone. Assign a zone admin and create one policies on that resource. link:https://docs.cloudera.com/runtime/7.0.3/security-ranger-authorization/topics/security-ranger-security-zones.html[Security Zone documentation]
+1. Be creative! What other types of policies can you come up with?
+
+
+=== Demonstrate policies are working
+
+1. Login to the terminal on the gateway node.
+1. Make sure you can login to beeline. Use the link:https://docs.cloudera.com/runtime/7.0.3/starting-hive/topics/hive_start_hive_as_authorized_user.html[documentation to help]
+1. Login to beeline as each of the four users ( kinit <user>; beeline ...  ) and run selects from `default.data` that demonstrate the policy outputs. Take that output and place it in
+`lab/1_beeline.adoc`
+1. Examine the Ranger Audits and search for entries from your users which show the policies in action. Take screenshots and put them in the `labs` directory, one image per user called `labs/2_audits.png`.
+1. Export all of the resource based policies link:https://docs.cloudera.com/runtime/7.0.3/security-ranger-authorization/topics/security-ranger-resource-policies-export-for-all-services.html[Follow the documentation] and put the exported file in `labs/3_policies.csv`
+
+
+=== Close things out
+
+** Label the issue as `in review`
+
+
+
+=== Close things out

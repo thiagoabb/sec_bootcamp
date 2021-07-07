@@ -1,0 +1,21 @@
+<H1> SSSD and Sentrify </H1>
+
+Integration between the OS and your Directory Service is critical for security to work. There are 2 implementation cloudera recommends:
+ 
+ * SSSD
+ * Centrify
+ 
+ There are many more tools which can be used, but are quite old, and are not supported by Cloudera:
+ 
+ * Winbind
+ * YPBind ( NIS )
+
+To deploy Centrify use the following blog as a guide:
+
+http://blog.cloudera.com/blog/2016/05/how-to-deploy-a-secure-enterprise-data-hub-on-aws/
+
+To deplot SSSD see RedHat documentation:
+
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Windows_Integration_Guide/sssd-ad-integration.html
+
+There might be other resources available, search :)

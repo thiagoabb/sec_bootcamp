@@ -1,0 +1,94 @@
+
+== Sample Commands
+
+These commands are pulled from different sources. Use with caution there are many options that might need changing
+
+
+=== Keytool commands
+
+
+Generate Key Pair
+```bash
+keytool -genkeypair -keystore keystore.jks -alias `hostname -f` -dname "CN=`hostname -f`,OU=Hadoop, O=Example, L=San Francisco, S=California, C=US" -keyalg RSA -keysize 2048 -storepass Password -keypass Password -ext EKU=serverAuth,clientAuth
+```
+
+Generate CSR
+```bash
+keytool -certreq -keystore keystore.jks -alias `hostname -f` -storepass Password -keypass Password -file `hostname -f`.csr
+```
+Import p7b into JKS
+```bash
+keytool -importcert -alias `hostname` -file /opt/cloudera/security/utility.p7b -keystore /opt/cloudera/security/keystore.jks -storepass <Password>
+```
+
+Export PKCS12 from JKS
+```bash
+keytool -importkeystore -srckeystore /opt/cloudera/security/keystore.jks -srcstorepass <Password> -srckeypass <Password> -destkeystore /opt/cloudera/security/keystore.p12 -deststoretype PKCS12 –srcalias `hostname` -deststorepass <Password> -destkeypass <Password>
+```
+
+Import PKCS12 into JKS
+```bash
+keytool -v -importkeystore -srckeystore whateverthefileis.p12 -srcstoretype PKCS12 -destkeystore mykeystore -deststoretype JKS
+```
+
+Import pem certificate into JKS keystore which already containes the correspodning private key
+
+```bash
+keytool -trustcacerts -importcert -alias utility -file /opt/cloudera/security/cert.pem -keystore /opt/cloudera/security/keystore.jks -storepass Password
+```
+
+Import a pem file into a jks file. Should be used whem private keys are not involved
+
+```bash
+keytool -import -alias <same_alias> -keystore truststore.jks -file root.ca
+```
+
+=== OpenSSL commands
+
+Generate private public key pair and CSR in one command
+
+```bash
+openssl req -out cert.csr -newkey rsa:2048 -keyout private.key -config my_conf.cnf -passout pass:<key_password> -subj "/C=?/ST=?/L=?/O=?/OU=?/CN=?"
+```
+
+
+View the content of a CSR
+```bash
+openssl req -text -noout -verify -in <my_csr>.csr
+```
+
+Extact the pem certificate from a pkcs12 file
+
+```bash
+openssl pkcs12 -in /opt/cloudera/security/keystore.p12 -passin pass:Password  -nokeys -out /opt/cloudera/security/cert.pem
+```
+
+Extract a private key from a pkcs12 file
+```bash
+openssl pkcs12 -in /opt/cloudera/security/keystore.p12 -passin pass:Password -nocerts -out /opt/cloudera/security/privateKey.pem -passout pass:Password
+```
+
+Create a pkcs12 from a cert in pem format and a key
+```
+openssl pkcs12 -export -out certificate.pkcs12 -inkey my_key.key -in my_cert.pem -passin pass:<key_password> -passout pass:<key_password>
+```
+
+=== Some Debugging Ideas
+
+*  Check if a certificate matches a trust store
+```bash
+openssl verify -verbose -CAfile root.pem -untrusted intermediate.pem cert.pem
+
+```
+* Check connectivity to a server which should be using TLS
+```bash
+openssl s_client -connect <server_FQDN>:9000 -CAfile CAcain.pem
+```
+* To view a JKS
+```bash
+keytool --list -keystore <keystore> -storepass <arg> -v
+```
+To view pem
+```bash
+openssl x509 -in <pem file> -text
+```

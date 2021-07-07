@@ -1,0 +1,31 @@
+[ req ]
+default_bits       = 2048
+default_md = sha256
+req_extensions     = v3_user_req
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+string_mask        = utf8only
+
+[ v3_user_req ]
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth, clientAuth
+
+[ req_distinguished_name ]
+countryName_default = XX
+countryName_min = 2
+countryName_max = 2
+localityName_default = Default City
+0.organizationName_default = Default Company Ltd
+commonName_max = 64
+emailAddress_max = 64
+
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1   = host FQDN
+DNS.2   = Load Balancer FQDN
+#DNS.1  = ${ENV::FQDN}

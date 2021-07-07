@@ -1,0 +1,105 @@
+== TLS Lab
+
+To understand the TLS process we are going to deploy TLS manually for a single host. Once we succeeded with that process
+we we will deploy TLS for all services using automated scripts.
+
+If you are looking for sample commands looking into link:./resources/example.adoc[Sample commands]
+
+== TLS Lab Prepare
+
+* Create an Issue called `TLS labs`
+** Add it to the Lab milestone
+** Label the issue as `started`
+** Assign yourself to the Issue
+
+=== Manually Deploy TLS for the Cloudera Manager Web UI.
+
+NOTE: For sample commands for all of these tasks and more look in link:link:./resources/example.adoc[the samples file in resoources].
+
+1. Login to Cloudera Manager Server host ( linux terminal ) and use openssl generate a key pair and CSR for the CM server.
+* Make sure all rules for certs are followed  both client and server authentication and digital signatures and encryption
+* To make life easier use a link:http://web.mit.edu/crypto/openssl.cnf[cnf file] and run the req command with -config sample.cnf
+* In the resources folder there is a link:./resources/sample.cnf[Sample cnf file]
+* Use openssl to display the content of the csr and put the output in the file lab/csr.adoc
+
+1. Sign the certificate with Cloudera Internal Certificate Authority
+* Documentation and examples on how to sign certificates can be found link:https://cloudera.atlassian.net/wiki/spaces/CS/pages/388038742/cfssl+Command+Line+Api+certificate+services[in the wiki]
+
+1. use openssl to display the content of the cert. Please the command and result in `labs/cm_cert.adoc`
+
+1. Concatenate the intermediate CA pem file and the certificate in to the same file.
+link:https://help.salesforce.com/articleView?id=000333504&language=en_US&type=1&mode=1[Here] is an example of how it should look like
+
+1. Create a JKS file with this newly generated cert concatenate. Place the commands used to create the JKS from the pem files in lab/jks.adoc
+* You might need to first generate a pkcs12 and load the pkcs12 into a jks
+* This will be you keystore file
+
+1. Download the certificate for the Cloudera internal CA link:https://cloudera.atlassian.net/wiki/download/attachments/388038742/cfssl-rootCA.pem?api=v2[from this location]
+* Create a JKS version of the CA certificate
+* This will  be your truststore file
+
+1. Put the keystore JKS and truststore JKS is a known location such as "/opt/cloudera/security" and make sure the "cloudera_scm" user has access to the folder
+
+1. Enable TLS for the CM console only.
+* Follow the instructions in the link:https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/how_to_configure_cm_tls.html#concept_gj4_g5d_xn[public documentation]
+* ONLY enable TLS for CM server an not the agents as well
+
+1. If you get a TLS certiicate verification error upload the CA certificate into your browser
+* Instructions available around the internet. For Chrome a possible source is  link:https://support.globalsign.com/digital-certificates/digital-certificate-installation/install-client-digital-certificate-windows-using-chrome[this documentation]
+
+1. Place a screenshot of the CM login page in lab/cm_tls.png make sure you show the URL and the fact that TLS is working.
+* You may click on the lock beside the url to display the validity of the certificate
+
+1. Undo the CM configuration and disable TLS for CM
+* This is to prepare for doing the entire process though an automated script.
+* If using Chrome make sure you clear browser cache once disabling TLS, otherwise it will auto default to TLS enable URL
+
+=== Deploy TLS for the cluster using "Auto_TLS"
+
+We now need to deploy TLS to all nodes and configure services to use TLS. The procedure is:
+
+1. Create CSR with private key for every node.
+
+* This can be done with a single bash command. Example command is:
+* `for i in {1..6}; do export FQDN=<your_host_names>-$i.gce.cloudera.com; openssl req -out $FQDN.csr -newkey rsa:2048 -keyout $FQDN.key -config test.cnf -passout pass:<private_key_password> -subj "/C=US/ST=CA/L=Somewhere/O=Cloudera./OU=Basecamp/CN=$FQDN" ; done`
+
+* This command references the CNF file so make sure you point to the correct CNF file. Further you need
+to have the SAN section of the CNF file contain `DNS.1  = ${ENV::FQDN}` Make sure that is there,
+and not commented out. Otherwise the certificates generated will not work.
+
+2. Tar up the CSRs and copy all of the CSR to the cfssl server to sign the certificates. Same process as before
+everything is link:https://cloudera.atlassian.net/wiki/spaces/CS/pages/388038742/cfssl+Command+Line+Api+certificate+services#Using-the-cfssl-client-host-(simplest-approach)[documented in the wiki]
+
+3. Once you have the signed certificates available bring them back to your CM machine and prepare
+a folder "/opt/cloudera/AutoTLS" with
+
+* All of the signed certificates
+* All of private keys corresponding to the certificates
+* A file containing the private key password ( this will be your keystore password )
+* A file containing the truststore password ( this is a net new password you create )
+* A file containing the root can intermediate CA certificate.
+
+
+4. Make sure the folder is owned by cloudera-scm user and than run the CURL command to enable TLS for the cluster
+Sample CURL command can be found in the link:https://blog.cloudera.com/auto-tls-in-cloudera-data-platform-data-center/[Cloudera Blog on auto TLS]
+
+* Look under the section "Option 2b – Enabling Auto-TLS with Existing Certificates"
+* Yes you will need to enter the certificates for the CM server twice in the 2 different section
+* Yes this will be made easier in the next release of CM ( sorry )
+
+5. Take the command used to generate the CSRs and the curl command and put them in the file `lab/auto_TLS.adoc`
+
+6. Makes sure everything is green after restarting CM, Agents and Cluster
+* If your agents don't heartbeat after reboot of the agent ( look under hosts -> all hosts ) check the
+agent config file ( /etc/cloudera-scm-agent/config.ini ). Look for the paranter "server_host=", make sure
+it's the FQDN and not the IP address of CM for the value of that parameter. IP is OK only when TLS is not
+enabled!!!
+
+IMPORTANT: Never user the same password for the Keystore and the Truststore. Keystore password
+protects the private key and should be secured. Truststore password protects the certificate
+of the CA and is often given out and stored in insecure ways.
+
+
+=== Close things out
+
+** Label the git issue as `in review`

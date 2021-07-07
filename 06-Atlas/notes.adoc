@@ -1,0 +1,35 @@
+== Atlas
+
+=== Metadata repository for CDP deployment
+
+* Graph Metastore
+* Semantic Glossary
+* Search and Lineage UI
+* Highly Customizable
+
+=== Great for Metadata management with tagging
+
+* Data Clarification
+* If done well we can have data taxonomy
+* Can be use for lifecycle management
+** TTL of data
+** Movement of data to higher compression etc.
+* Great for data discovery if tagging is done correctly
+
+=== Data Lineage
+
+* As data is moved within the cluster linage is maintained
+** Can be used for report confidence identification
+** Technical people use the content for debuging pipelines
+* Linked though data objects
+
+=== Data Taxonomy
+
+A way to tag data with business context metadata
+
+Usually column names are not consistant across datasets
+
+
+=== Ranger Integration with Atlas for tag based authorization
+** Uses ABAC (Attribute Based access control) model for authorization
+** Allows for separation of duties, different team building policies and tagging data

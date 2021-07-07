@@ -1,0 +1,211 @@
+= Transport Layer Security ( TLS )
+
+==== History
+
+Evolved from SSL
+
+* From SSLv3 to TLSv1
+* People say SSL, but they mean TLS
+* SSL is dead issues like POODLE
+* TLS 1.2 is the most used version; TLS 1.3 published August 2018
+
+==== Explanation
+
+Certificates rely on an asymmetric encryption model
+
+For an explanation of encryption model see: link:./resources/encryption_fundamentals.adoc[Encryption Fundamentals]
+
+TLS uses a certificate form to establish identity between the two parties
+
+* Certificates rely on an asymmetric encryption model
+* Public-private key pair using RSA algorithm
+* A certificate contains its public key plus identifying attributes
+* Certificate Authority ( CA ) sign each certificate
+
+A CA is basically a pair of asymmetric keys used to sign and verify certificates.
+
+For an explanation fo why a CA is needed see: link:./resources/CAfundamentals.adoc[CA Fundamentals]
+
+=== TLS deployment
+
+Client side
+
+* Must have a truststore containing:
+** List of public key of CA it accepts to sign certificates
+** linux, browser, java all have their own truststore built into the product.
+
+Server side
+
+* Must have a keystore containing:
+** A certificate signed by a trusted CA a
+** Corresponding private key
+** Intermediate CA chain leading to root CA
+
+Certificate Chains
+
+* Intermediate CA shound be used to sign certificates.
+* The intermediate CA should *NOT* be trusted by the client, the root CA.
+** Do not add the intermediate CA to the trust store
+** Certificates for intermediate CAs should be included with server's certificate.
+
+=== Certificate File Format
+
+There are 3 different components which are required for TLS encryption:
+
+1. A Signed Certificate (Cert)
+1. A Private Key which matches the public key in the certificate
+1. A Truststore which contains the certificates of the Certificate Authorities (CA)
+
+Depending on the programing language used, the file formats change (though the certificate can be the same)
+
+In C++ / Python we have
+
+* PEM file, which stores one or more certificates in ascii base 64 encoding
+* DER file, same data as a PEM but stored in binary encoding
+* PKCS7 file, which is a container for certificates and truststore data
+* PKCS12 files which is a container for certificates and truststore data and private keys
+
+In Java we have:
+
+* jks format which is a persisted object containing a PKCS12 files wrapped in an object class for easier access for java applications.
+
+* Keystore file in jks format, containing certificate(s) and private key
+* Truststore file in jks format, containing certificate for trusted CAs only .
+
+Conversion is possible form one format to another including from Java to C++ / Python formats
+
+`openssl`
+
+* library has many utilities for managing certificates ( PEM / DER / PKCS7 / PKCS12 )
+
+`keytool`
+
+* utility is useful for working with JKS objects and format conversion to PKCS12
+
+=== Getting a certificate
+
+The Steps generally are
+
+1. Generate a public & private key pair
+1. Create a certificate signing request ( CSR ) containing the just generated public key
+1. Send the CSR to a CA for signing
+1. Receive a signed certificate and convert it into the format(s) supported by to application(s)
+
+There are 2 commands used:
+
+* keytool
+* openssl
+
+You will learn to love these tools
+
+=== Rules for Certificates ===
+
+CDP deployment utilizing TLS across all components in the stack:
+
+* Every server in the cluster to have a unique certificate
+** wildcard supported but not encouraged
+
+The certificates have the following requirements/recommendations:
+
+* Must be able to be used for both client and server authentication
+* Must be able to be used for digital signatures and encryption
+* Does not have to be a public certificate issued by a commercial certificate authority -
+  certificates issued by an internal certificate authority is the recommended approach
+* Must have the certificate common name (CN) set to the server’s fully qualified domain name (fqdn),
+  such as server1.example.com
+
+NOTE: Certificate Template defines the above properties for a certificate. IF using AD
+as the CA use an IAS server template or a Computer template, no other template has all of the
+needed setting and will crash TLS for Cloudera Manager.
+
+[NOTE]
+====
+TLS certificates can be used for authentication of server, with the CN of the cert is used to verify the
+FQDN of the host. We use that for CM to autheticate hosts.
+====
+
+=== A note on SANS
+
+A SAN = Subject Alternatives Names.
+
+* A cert can only have a single Common Name ( CN )
+* If you have a Load Balancer you might want multiple CNs so use SAN
+* A cert can have multiple SANs which are used the same as CN to identify servers
+* Chrome does not use CN any more and demands the host FQDN is in the SAN
+
+A SAN can be used for wildcard certificates.
+
+* A certificate with a wildcard that can be used for multiple servers
+* Cloudera supports wildcard certificates.
+* Most customers do not allow wildcard certificates.
+** If the Sec team at the customer is OK with wildcard certs we are OK with them too
+
+==== Where is TLS needed.
+
+We implement TLS for Cloudera Manager in three levels
+
+1. wire encryption only; no certificates are validated
+2. agents validate the server (one-way TLS/SSL)
+3. server and agents validate each other (two-way TLS/SSL)
+
+We should do this before Kerberos is enabled!
+
+The rest of CDP uses TLS in many places
+
+* Cloudera Navigator / Hue / etc. web UIs
+* Hive and Impala (JDBC/ODBC access)
+* Oozie
+* Hadoop web UIs, MapReduce shuffling
+* almost everywhere else
+
+=== Typical Algorithm per server:
+
+1.  Generate a private and public key pair in a JKS
+* Command: keytool -genkeypair
+2.  Generate a Certificate Signing Request
+* Command: keytool -certreq
+3.  Import The signed certificate into to keystore
+* Command: keytool -importcert
+* Alias must match the alias of the private key otherwise the import will fail
+4.  Export the cert and key into a PKCS12 file to convert cert and key to pem format
+* Command: keytool -importkeystore
+5.  Extract the certificate from the PKCS12 file
+* Command: openssl pkcs12 -nokeys -out
+6.  Extract the key form the PKCS12 file
+* Command: openssl pkcs12 -nocerts -out
+7.  Create a password file with the keystore password for the Cloudera Manager Agent
+* Command: echo “<Password>” > passwd.txt
+
+==== Useful examples on how to get signed certificates and sample commands
+
+link:./resources/example.adoc[Sample commands and process for certificates]
+
+==== Different options using AutoTLS
+
+The process of deploying certificates for all services in the correct format is arduous and error prone.
+The PS teams has created automation, which has partially made it's way into CM. Going forward use this
+CM "automation" to deploy TLS for the cluster as it's they only solution that will work for private cloud.
+
+Several Different Options for getting signed certificates:
+
+1. CM can generate it's own CA and sign certificates for all components with that CA
+
+* OK for test environments but can not be used in production
+* Every service will get TLS error in the browser
+
+1. Upload a Certificate Authority Certificate and its Private Key to CM for signing certificates
+
+* Great Idea, won't work. No self respecting IT department will give us our own CA that can sign
+certificates.
+
+1. Generate and sign certificates outside of CM and upload the CM to distribute and enable TLS
+
+* Only production worthy Option
+* All certs can be signed with public or internal CA at the customer
+* No UI, just rest API calls using CM API
+* Improvements coming soon!
+
+
+
+
+

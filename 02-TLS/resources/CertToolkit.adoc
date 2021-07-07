@@ -1,0 +1,74 @@
+= Cert ToolKit
+
+A great Cloudera developed utility for certificate generation and deployment is the Certificate Toolkit
+
+Download the git repository
+
+http://github.mtv.cloudera.com/CertTeam/CertToolkit.git
+
+Copy all of the files to the 
+/opt/cloudera/security folder on the Cloudera Manager Server
+   
+Edit the file:
+bin/defaults.yaml
+   
+Minimum values to change:
+
+* CM_USER 
+* CM_HOST
+
+Install Pre-requests
+
+[source,bash]
+setup.sh [venv]
+
+The basic commands for deploying TLS are:
+
+[source,bash]
+python certtoolkit.py precheck
+python certtoolkit.py prepare
+python certtoolkit.py enable_tls
+
+It is recommended to read the documentation as there are many nuances and subtitles to the different
+options available with the toolkit.
+
+To Disable TLS, use the command:
+
+[source,bash]
+python certtoolkit.py disable_tls
+
+A lot more details in the: README.md of the Git repository
+
+=== Exercise using CertToolkit
+
+=== Deploy TLS for the entire cluster using CertToolkit
+
+1. Download and deploy CertToolkit.
+* Toolkit can be cloned directly from link:https://github.infra.cloudera.com/CertTeam/CertToolkit[the git repo]
+
+1. Run the setup script for the toolkit
+* Don't forget to use the option for creating a virtual environment
+
+1. Run the pre-check for the toolkit
+* When giving the toolkit login to all of the nodes use the SSH private key, do not use the interactive password method
+* Look at the documentation to find the correct switch
+* Don't forget to edit the yaml file. You need to give some parameters to certtoolkit. At minimum the CM Host and User
+
+1. Run the prepare command to get all of the private keys and CSRs generated
+
+1. Use the internal CA to sign all of the CSR
+* Great instructions link:https://cloudera.atlassian.net/wiki/spaces/CS/pages/388038742/cfssl+Command+Line+Api+certificate+services#Using-the-cfssl-client-host-(simplest-approach)[on the wiki page]
+
+1. Put all of the CSRs back into the correct folder of the toolkit setup locations.
+* Don't forget to download the Root and Intermediate CA and place them in the correct toolkit folder as well
+
+1. Run the enable TLS command to enable TLS for existing services
+
+1. Put all of the command used for CertToolkit in the file lab/toolkit.adoc
+
+IMPORTANT: Never user the same password for the Keystore and the Truststore. Keystore password
+protects the private key and should be secured. Truststore password protects the certificate
+of the CA and is often given out and stored in insecure ways.
+
+For some more instructions on cert tool kit look at the following adoc link:./CertToolkit.adoc[ CertToolkit ]
+For a video outlining the toolkit look at the following link: [ToDo]

@@ -1,0 +1,46 @@
+
+== Security Hardening
+
+Once security is deployed there are a few more steps you want to look at
+
+* Default permissions on HDFS
+* Default password
+* Firewall to protect cluster nodes
+* Constant patching of OS / Java etc.
+* Ensuring audits pipelines are always active
+* Security model
+** Creating ranger policies to make sure least access is followed
+
+Most of the configuration hardening is covered by Security Scanner.
+
+* Still has some old Navigtaor stuff ( ignore it )
+* PR for Atlas and  Ranger still to be merged ( pending )
+* But really good tool for testing deployment
+
+=== Tools
+
+There is a PS ansible playbook that can deploy a cluster and do all of the security
+in one go:
+
+Full playbook available link:https://github.infra.cloudera.com/cat/cloudera-playbook-v2[in the internal GIT]
+
+=== Aditional tools coming soon
+
+We are currently working on a guide to guide people into using ranger in a large
+organization and keep things organized. Look out for that coming soon
+
+We are also working on a Security Refrence Architecture. That should be coming soon as well
+look at the SME pages for that to show UP
+
+=== Internal SME pages.
+
+We have 2 SME pages internally, one from support and another from sales engineering.
+There are a great source of knowledge so look there first if you are looking for more information
+
+* https://cloudera.atlassian.net/wiki/spaces/CS/pages/129403059/Support%2BSME%2BSecurity[Support SME Page]
+* https://cloudera.atlassian.net/wiki/spaces/CSME/pages/87425210/Security+SME+Homepage[Sales Engineering SME Page]
+
+Happy Security-ing!!!!
+
+
+

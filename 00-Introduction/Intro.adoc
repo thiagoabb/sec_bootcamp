@@ -1,0 +1,114 @@
+
+= Introduction
+
+This course is an introduction to the fundamental of data security with
+emphases on technologies used in securing Cloudera's Data Center centric technologies.
+
+== Security Basics
+
+Two rules you should always remember
+
+1. Security is not binary, it is not on or off but a measure of degees where 100% can
+never be achieved
+1. You are never done. One layer of protection is never good enough and alaways assume human error
+
+=== Defence in Depth
+
+Often data security is discussed in terms of defence in depth using the castle analogy
+
+image::./png/castle.jpeg[Defence in Depth]
+
+A castle has multiple layers of protection before the inner chambers can be reached
+
+* Large open field around the castle
+* Moat
+* Defending wall
+* Many interior rooms
+* In the center of all that the crown jewels.
+
+With data security we typically deploy
+
+* Perimeter security with routing rules
+* Network security with firewalls
+* Host Security within Linux
+* Application security with the code of the app
+* Data security within encryption
+
+Though different applications work differently and the stack and implementation changes
+all layers can be breached so multiple layers are critical.
+
+*Never not be afraid!* Stay paranoid, stay vigilant
+
+== The Hadoop problem
+
+Security in a distributed computing environment was a foreign concept until Hadoop
+came along. Many of the core assumptions which could be made in regular environments
+were void in a distributed environment. Assumptions regarding inter process security
+and authentication.
+
+The fundamentals of Security (in our world) means:
+
+* Authentication
+  ** Kerberos
+  ** KNOX
+  ** LDAP
+* Authorization
+  ** Ranger
+  ** LDAP
+* Encryption
+  ** TLS
+  ** TDE
+  ** Nav Encrypt
+* Audit
+  ** Ranger
+
+The space is very complex with weird interdependencies and complex integration schemas.
+
+During this course we will go through all of the steps required to secure a basic cluster,
+with pointers to where to get information for more complex topics such as HSM integration.
+
+Each topic of security will be introduced in the order in which it will be applied
+to the cluster.
+
+Each section will include:
+
+* A video outlining the basics of the technology
+* An ASCII doc with bullet point notes of the content covered in the video with expansisons and links
+* Hands on exercises to practice using the technology.
+
+At the end of the course each student will have a fully secured cluster they have built from scratch
+
+==== Agenda
+
+|===
+|  | Day 1 | Day 2 | Day 3 | Day 4 | Day 5
+
+| Morning
+| Intro + Cluster Deployment
+| Kerberos
+| Ranger
+| Encryption at rest
+| Challenge
+
+| Afternoon
+| TLS
+| KNOX & LDAP
+| Atlas
+| Hardening
+| Challenge
+|===
+
+
+=== The security paradox
+
+Security experts want to lock down system to the nth degree
+
+Users still need to do their job, if security impedes them from doing their job
+
+* Workarounds are used
+* Escalations occur to reduce security
+* Tensions escalate
+
+Find the balance, secured systems need to let people do their job!
+
+

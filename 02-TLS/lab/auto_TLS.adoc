@@ -1,0 +1,78 @@
+for i in {1..6}; do export FQDN=tabbruzzese-$i.gce.cloudera.com; openssl req -out $FQDN.csr -newkey rsa:2048 -keyout $FQDN.key -config my_conf.cnf -passout pass:cloudera -subj "/C=US/ST=CA/L=Somewhere/O=Cloudera./OU=Basecamp/CN=$FQDN" ; done
+
+
+curl -i -v -u admin:admin -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{
+"location" : "/opt/cloudera/AutoTLS",
+"customCA" : true,
+"interpretAsFilenames" : true,
+"cmHostCert" : "/tmp/auto-tls/certs/tabbruzzese-1.pem",
+"cmHostKey" : "/tmp/auto-tls/keys/tabbruzzese-1.gce.cloudera.com.key",
+"caCert" : "/tmp/auto-tls/ca-certs/ca.pem",
+"keystorePasswd" : "/tmp/auto-tls/keys/key.pwd",
+"truststorePasswd" : "/tmp/auto-tls/ca-certs/truststore.pwd",
+"hostCerts" : [ {
+"hostname" : "tabbruzzese-1.gce.cloudera.com",
+"certificate" : "/tmp/auto-tls/certs/tabbruzzese-1.pem",
+"key" : "/tmp/auto-tls/keys/tabbruzzese-1.gce.cloudera.com.key"
+}, {
+"hostname" : "tabbruzzese-2.gce.cloudera.com",
+"certificate" : "/tmp/auto-tls/certs/tabbruzzese-2.pem",
+"key" : "/tmp/auto-tls/keys/tabbruzzese-2.gce.cloudera.com.key"
+}, {
+"hostname" : "tabbruzzese-3.gce.cloudera.com",
+"certificate" : "/tmp/auto-tls/certs/tabbruzzese-3.pem",
+"key" : "/tmp/auto-tls/keys/tabbruzzese-3.gce.cloudera.com.key"
+}, {
+"hostname" : "tabbruzzese-4.gce.cloudera.com",
+"certificate" : "/tmp/auto-tls/certs/tabbruzzese-4.pem",
+"key" : "/tmp/auto-tls/keys/tabbruzzese-4.gce.cloudera.com.key"
+}, {
+"hostname" : "tabbruzzese-5.gce.cloudera.com",
+"certificate" : "/tmp/auto-tls/certs/tabbruzzese-5.pem",
+"key" : "/tmp/auto-tls/keys/tabbruzzese-5.gce.cloudera.com.key"
+}, {
+"hostname" : "tabbruzzese-6.gce.cloudera.com",
+"certificate" : "/tmp/auto-tls/certs/tabbruzzese-6.pem",
+"key" : "/tmp/auto-tls/keys/tabbruzzese-6.gce.cloudera.com.key"
+} ],
+"configureAllServices" : "true",
+"sshPort" : 22,
+"userName" : "root",
+"password" : "cloudera"
+}' 'http://tabbruzzese-1.gce.cloudera.com:7180/api/v41/cm/commands/generateCmca'
+
+
+* Output
+
+Content-Type: application/json;charset=utf-8
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+Pragma: no-cache
+< Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+< X-XSS-Protection: 1; mode=block
+X-XSS-Protection: 1; mode=block
+< X-Frame-Options: DENY
+X-Frame-Options: DENY
+< X-Content-Type-Options: nosniff
+X-Content-Type-Options: nosniff
+< Set-Cookie: SESSION=308e491a-3941-4831-8b45-ecf8ea4eb090;Path=/;HttpOnly
+Set-Cookie: SESSION=308e491a-3941-4831-8b45-ecf8ea4eb090;Path=/;HttpOnly
+< Transfer-Encoding: chunked
+Transfer-Encoding: chunked
+
+< 
+{
+  "id" : 1546334763,
+  "name" : "GenerateCMCACommand",
+  "startTime" : "2020-07-08T17:29:40.056Z",
+  "endTime" : "2020-07-08T17:30:00.877Z",
+  "active" : false,
+  "success" : true,
+  "resultMessage" : "Successfully generated CMCA and enabled Auto-TLS",
+  "children" : {
+    "items" : [ ]
+  }
+* Connection #0 to host tabbruzzese-1.gce.cloudera.com left intact
+

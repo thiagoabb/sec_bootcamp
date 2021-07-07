@@ -1,0 +1,87 @@
+== Cluster Install Lab
+
+=== *Before* You Start
+
+* link:../GitHub.adoc[Follow instructions here] if you haven't already
+* Remember to submit text-based work in AsciiDoc and screenshots as PNG files
+** Use code formatting (``....``) at a minimum
+* Create an Issue in your repo called `Cluster Deployment`
+** Add it to the `Labs` milestone
+** Assign the label `started`
+* Use the issue to note your lab progress
+** Add a comment when you have finished a lab section
+** Add a comment if you run into a puzzling error or other blocker
+** If you also fix it a problem, comment on the cause and solution
+
+=== Deploy a cluster
+
+Before we can work withs security we need to deploy a cluster to use throughout the basecamp.
+
+We need a basic cluster deploying a production like manner.
+
+Each of you will get 6 VMs to deploy a CDP 7.1 cluster. Follow the following rules for deployment
+
+* DO NOT USE JENKINS build scripts
+* Cluster should install the basic components ( Zookeeper, HDFS, YARN, Oozie, Hue, Hive, Impala )
+* Following security best practices for component layout
+* Nodes should be.
+** 1 Utility / EDGE Node
+** 2 Master Node
+** 3 Worker Nodes
+
+* Performance does not matter, so use instances sparingly
+* Don't enable HA for core services
+* Use external MySQL/Postgress database deployed on the CM node, My SQL HA is not needed
+* Follow all host based pre-requests
+
+* Generate ssh keys to passwordless ssh to all nodes. It will come in very useful though the basecamp.
+
+WARNING: To avoid suffering though link:https://jira.cloudera.com/browse/TSB-394[TSB-394] Do not installed an updated version of Java.
+Install OpenJDK 8.0.232 or Java 11.0.4-x+11 Anything newer and you will have a bad time during the Kerberos exercises
+
+NOTE: OpenJDK 8.0.232 is no longer available from OS vendors. Install the java that comes from the CM repo,
+and run `update-alternatives` to make java visible to the rest of the system
+
+Sample use of update-alternatives:
+
+```bash
+
+ansible basecamp1 -u root -a "update-alternatives  --install /usr/bin/java java /usr/java/jdk1.8.0_232-cloudera/bin/java 1000"
+```
+
+Use the following services layout.
+
+|===
+|Node 1 |Node 2 |Node 3 |Node 4 |Node5| Node6
+
+|Hive Gateway, HiveServer2 on Tez, Hue, CM Service Monitor, CM Host Monitor, CM Reports Manager, CM Events Server, CM Alert Publisher, Tez Gateway, ZooKeeper
+|HDFS NameNode, HDFS Balancer Hive Gateway Tez Gateway, Yarn ResourceManager, Yarn JobHistory Server, YARN Queue Manager
+|HDFS Secondary NameNode, Hive Gateway, Hive Metastore, Oozie, Tez Gateway, Spark History Server
+|HDFS DataNode, Hive Gateway, Tez Gateway, Yarn NodeManager, Spark Gateway
+|HDFS DataNode, Hive Gateway, Tez Gateway, Yarn NodeManager, Spark Gateway
+|HDFS DataNode, Hive Gateway, Tez Gateway, Yarn NodeManager, Spark Gateway
+|===
+
+* Do not install any addition security services, we will add those during the course
+* Do not enable autoTLS
+* D not enable kerberos
+
+For detailed notes on how to deploy a cluster you can refer to link:https://github.infra.cloudera.com/FCE-Boot-Camps/admin-basecamp/blob/master/01-Deployment/exercises.adoc[tech basecamp exercise]
+on cluster deployment or public documentation.
+
+Once the cluster is full deployed follow the following additional steps:
+
+1. Take a screenshot of the CM home page
+   ** Name this file `labs/1_cm_installed.png`.
+1. Run pi mapreduce test sample command link:https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/cm_ig_testing_the_install.html#concept_n3v_hxj_qk[here]. +
+*Run as the root user NOT hdfs*
+1. Take the command used to run the pi example and the output from it and place it in the file `lab/2_pi.adoc`
+7. link:https://docs.cloudera.com/cloudera-manager/7.1.1/installation/topics/cdpdc-testing-with-hue.html[Login to hue] +
+* create an admin user
+** Username: `root`
+** Password: `cloudera` +
+* Import example tables
+** click on your user icon in lower left corner and select `Administration`
+** Install Hive samples
+9. link:https://docs.cloudera.com/cloudera-manager/7.1.1/installation/topics/cdpdc-exporting-cluster-configuration.html[Export] the cluster config using the REST API and place the config the the file `lab/3_cluster_config.adoc`
+10. Label your Issue 'review'

@@ -1,0 +1,57 @@
+== Atlas Exercises
+
+
+=== Deploy Atlas
+
+1. Deploy Kafka on the 3 worker nodes in the cluster
+1. Deploy Habase on the cluster. Region servers go on the worker nodes,
+everything else on the master nodes
+1. Deploy Atlas on the Master node that you feel has a bit more pracle available.
+
+=== Atlas Tagging
+
+Tag Based Masking on credit card
+
+1. Create a PII tag follow link:https://docs.cloudera.com/runtime/7.0.3/atlas-working-with-classifications/topics/atlas-creating-classifications.html[the documentation]
+1. Create an attribute of the tag called PII_type follow link:https://docs.cloudera.com/runtime/7.0.3/atlas-working-with-classifications/topics/atlas-adding-attributes-to-classifications.html[the documentation]
+1. Tag the following columns as PII type. Follow link:https://docs.cloudera.com/runtime/7.0.3/atlas-working-with-classifications/topics/atlas-adding-attributes-to-classifications.html[the documentation]
+
+|===
+|  Column | PII_type
+
+| SIN
+| sin
+
+| Credit Card
+| credit_card
+
+|===
+
+1. Go back to CM and ensure tagsync in Ranger is dpployed and working
+1. Go to ranger and find tag repository and configure link:https://docs.cloudera.com/runtime/7.0.3/security-ranger-authorization/topics/security-ranger-tag-service-add.html[a tag-based service]
+1. Configure a tag based policy use link:https://docs.cloudera.com/runtime/7.0.3/security-ranger-authorization/topics/security-ranger-tag-policy-using-attributes-and-values-in-conditions.html[the documentation]
+* Access policy for PII with type SIN
+** hide this from basecamp_no_pii_access
+* Masking policy for PII with type Credit Card
+** Hide the first 12 digits
+
+If you are looking for an end to end tutorual ( be it a bit old) look at the link:https://www.cloudera.com/tutorials/tag-based-policies-with-apache-ranger-and-apache-atlas/2.html[following link]
+
+=== Demonstrate policies are working
+
+1. Login to the terminal on the gateway node.
+1. Make sure you can login to beeline. Use the link:https://docs.cloudera.com/runtime/7.0.3/starting-hive/topics/hive_start_hive_as_authorized_user.html[documentation to help]
+1. Login to beeline as each of the four users ( kinit <user>; beeline ...  ) and run selects from `default.data` that demonstrate the policy outputs. Take that output and place it in
+`lab/1_beeline.adoc`
+
+=== Bonus
+
+1. Explore the Atlas plugin in Ranger.
+1. Create a ranger polciy which prevents  basecamp_no_pii_access for seeing the PII tags
+1. Take a screenshot of Atlas logged in as basecamp_no_pii_user showing they can not see the tags
+
+=== Close things out
+
+** Label the issue as `in review`
+
+

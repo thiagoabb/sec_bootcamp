@@ -1,0 +1,43 @@
+
+== Going full manual, deprecated.
+
+=== Typical Algorithm:
+
+1.  Generate a private and public key pair in a JKS
+* Command: keytool -genkeypair
+2.  Generate a Certificate Signing Request
+* Command: keytool -certreq
+3.  Import The signed certificate into to keystore
+* Command: keytool -importcert
+* Alias must match the alias of the private key otherwise the import will fail
+4.  Export the cert and key into a PKCS12 file to convert cert and key to pem format
+* Command: keytool -importkeystore
+5.  Extract the certificate from the PKCS12 file
+* Command: openssl pkcs12 -nokeys -out
+6.  Extract the key form the PKCS12 file
+* Command: openssl pkcs12 -nocerts -out
+7.  Create a password file with the keystore password for the Cloudera Manager Agent
+* Command: echo “<Password>” > passwd.txt
+
+
+==== Further Instructions
+       
+Once The certificates are created following the instruction to enable TLS for the various components 
+
+To enable TLS for Cloudera Manager follow the instructions at the links:
+
+1. http://www.cloudera.com/documentation/enterprise/latest/topics/cm_sg_tls_browser.html#xd_583c10bfdbd326ba-7dae4aa6-147c30d0933--7a61
+1. http://www.cloudera.com/documentation/enterprise/latest/topics/cm_sg_config_tls_auth.html#topic_3
+1. http://www.cloudera.com/documentation/enterprise/latest/topics/cm_sg_config_tls_agent_auth.html#concept_dsv_q3w_wn
+
+Please perform these steps in order and you can not go directly to level 3
+
+For the Cloudera Manager Services:
+* http://www.cloudera.com/documentation/enterprise/latest/topics/sg_cms_ssl.html#xd_583c10bfdbd326ba--6eed2fb8-14349d04bee--7c9a
+
+To Enable TLS for the the CDH component use the information at the following links from the master list:
+
+http://www.cloudera.com/documentation/enterprise/latest/topics/cm_sg_hadoop_ssl_cm.html#xd_583c10bfdbd326ba--6eed2fb8-14349d04bee--7c9a
+
+Follow the instructions for ALL of the components installed in the cluster
+

@@ -1,0 +1,148 @@
+== Introduction
+
+Authentication is the practice of checking you are who you say you are.
+
+Typically linux uses the login system to verify your identity. In a distributed system this is insufficient.
+
+If you have elevated privileges on one of the nodes ( edge node for example ) it does not mean you should have elevated privileges on the cluster.
+ 
+For example if you are root on any edge node ( a server where the config XMLs are deployed ). You can run the command
+ 
+user@edge:~$ export HADOOP_USER_NAME=hdfs; hdfs dfs -rm -r /
+
+To prevent this, we need to use external (to the cluster) authentication system
+
+2 Different external authentication mechanisms available:
+
+* Kerberos
+* Directory Service
+
+=== Kerberos
+
+Kerberos is an authentication system built in the 80's at MIT.
+ 
+- It was designed to use a ticketing system to allow for authentication over hostile channel (non trusted network)
+- Uses a ticketing system to authenticate users
+- Implements single sign-on system i.e. you only need to authenticate once, on subsequent accesses no password is required
+- Designed to use a trusted third party ( Kerberos Server ) to administer authentication
+- Underpins most modern authentication mechanisms
+- Integrated into Microsoft Active Directory, and RedHat Free IPA out of the box
+
+An over-simplified view of Kerberos
+
+image::/png/Kerberos.png[Kerberos]
+
+
+1. Client makes request to AS for a TGT (kinit)
+1. AS check password database and creates a TGT encrypted with user’s password
+3. Client decrypts messages with password and stores TGT
+4. Client makes a request to TGS for a Service Ticket (ST) with its TGT to access a particular service
+5. TGS sends back a ST with a service secret
+6. Client sends the ST to the Service to authenticate itself. Service checks the validity of the ticket and accepts the request
+7. Optional: Service sends back its secret for the client to authenticate it
+
+A grouping of all elements in one system is called a Kerberos REALM,
+
+NOTE: Watch the video for a full deep dive on Kerberos
+
+==== Limitation of Kerberos
+
+Kerberos does not implement the concept of groups, not any other type of data associated with users. 
+In this case Kerberos can not be used for authorization only authentication.
+
+A directory service is used as the authorization backend. More on directory service in the next chapter.
+
+=== CDP and Kerberos
+
+To secure Hadoop services, everything starts with Kerberos
+
+* Every role type of every service gets its own Kerberos credentials
+* Users prove their identity to obtain a Kerberos ticket
+* A valid ticket is honored by Hadoop service components
+
+Hadoop components also authenticate to each other for intra- and inter-service communication
+
+An external kerberos serer is required. There are the options in order of preference:
+
+1. Microsoft AD (Active Directory)
+1. Redhat / IBM IPA (Identity, Policy, and Audit)
+1. MIT Kerberos
+
+The first two are full identity provider, while the last is just a kerberos implementation.
+
+When on site with a customer, *integrate with Microsoft AD* unless conferring with a senior SA first.
+
+Cloudera Manager provides a wizard to automate the provisioning of service accounts and the associated keytabs
+
+Blog on the integration is AD available
+link:http://blog.cloudera.com/blog/2014/07/new-in-cloudera-manager-5-1-direct-active-directory-integration-for-kerberos-authentication/[at the link]
+
+
+
+=== AD Requirements
+
+To Integrate CDP with AD you need the following:
+
+* At least one AD domain controller is setup with LDAPS
+* A dedicated OU in your desired AD domain
+* An AD account for Cloudera Manager that has create/modify/delete user privileges on this OU
+** This is not a domain admin / administrative account!
+* Install openldap-clients on the CM server host, krb5-workstation on every host
+
+When asking a customer for AD account for Cloudera Manager you will get pushback as it violates IT policy.
+Use the following points to convince them
+
+* The user can be kept disabled most of the time and is only needed for:
+** Initial setup
+** Deployment of new services
+** Deployment of new servers ( nodes )
+* Users will only be created in a single OU which can be audited after creation
+* The password is stored security in the CM backend and th CM admin does not need to know the password.
+It can be entered one time by AD admin during setup
+* Passwords for users are randomly generated based on editable specifications by the system, no user interaction
+* The code that generates the users is open source and can be audited.
+
+
+=== Kerberos config file required for client ( /etc/krb5.conf )
+
+Contains three primary sections to understand: libdefaults, realms, and domain_realm
+
+* libdefaults
+** Contains general configurations that are not specific to a given realm
+* realms
+** Lists the realms and associated KDCs for them
+* domain_realm
+** Maps DNS domains to Kerberos realms
+
+See sample krb5.conf file link:./resources/krb5.conf[krb5.conf]
+
+Full the full documentation on the krb5.conf see
+link:https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html[MIT documentation]
+
+Once the kerberos client RPM has been installed and the krb5.conf is configured the machine is a Kerberos client.
+Your labtop can be a client for Kerberos.
+
+
+=== SASL QOP Notes
+
+Most of EDH uses TLS for wire encryption
+
+Some services use "SASL"
+
+* Umbrella security suite of protocols and methods
+
+Quality of protection (QoP)
+
+* Extension of Kerberos authentication (typically)
+* Three modes: authentication (auth), integrity (auth-int), privacy (auth-conf)
+
+Used in a few places
+
+* HDFS RPC encryption
+* HDFS DataNode transfer encryption
+* HBase RPC/transfer encryption
+* HBase thrift server
+
+
+
+

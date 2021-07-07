@@ -1,0 +1,167 @@
+= Principals of Encryption
+
+There are 2 basic types of encryption
+
+* symmetric key encryption
+* asymmetric key encryption
+
+Symmetric is where the encryption key = decryption key
+
+Asymmetric is where the encryption key != decryption key
+
+=== Symetric Key Encryption
+
+This is the most popular form of encryption with hundreds of different implementation. 
+
+Currently the most popular (and secure) implementation is AES. 
+Hardware accelerated via the Intel AES-NI extensions
+
+=== Simple Example
+
+The simplest symetric encryption algorithm can be XOR 
+
+Encrypted Message = Original Message XOR Key
+
+Decryped Message  = Encrypted Message XOR Key
+
+For example if we have: 
+
+....
+Message = 0x45
+Key = 0X96
+
+Encrypted Message = Original Message XOR Key
+                  =       0x45       XOR 0x96
+                  =       0xD3
+
+Decryped Message  = Encrypted Message XOR Key
+                  =         0xD3      XOR 0x96
+                  =         0x45
+....
+
+=== Simple Example with AES
+
+```bash
+1. echo "secret message" > message.txt
+2. openssl enc -e -aes256 -in message.txt -out lockedmessage.txt -k fedcba9876
+3. cat lockedmessage.txt 
+
+   Salted__#n��i�P�I��%{���dpT!([
+   
+4. openssl enc -d -aes256 -out originalmessage.txt -in lockedmessage.txt -k fedcba9876
+5. cat originalmessage.txt
+
+   secret message
+
+```
+....
+Command options used:
+       -e = encrypt
+       -d = decrypt
+       -k = symetric key
+       -in = input file
+       -out = output file
+....
+
+=== Limitations of Symetric Key Encryption
+
+A secure method is required for exchange the secret key.
+
+If you can meet at starbucks and exchange the Key that will work
+
+When connecting to your bank's webservice to do online banking that is not an option
+
+== Asymmetric Key Encryption
+
+Asymetric Key Encryption (sometimes called public key cryptography) uses 2 distinct keys for encryption and decryption
+Encryption key can be made public to everybody without exposing any encrypted messages
+
+This relies on complex mathematics. First implementation published in 1977 (ish)[1] by:
+Ron **R**ivest, Adi **S**hamir, and Leonard **A**dleman called the RSA algorithm. 
+
+[1] Ping me offline if you want a history lesson
+
+=== RSA Key Creation
+
+
+1. Choose two different large random prime numbers _p_, and _q_
+2. Calculate _n_ = _p * q_
+4. Calculate the totient: _phi(n)_ = _(p-1)(q-1)_
+5. Choose an integer _e_, such that 1 < _e_, < _phi(n)_ and _e_, is coprime to phi(n)
+   _e_, is released as the public key exponent
+7. Compute _d_, to satisfy the congruence relation _d * e ≡ 1_ or  _d * e_ = 1 + _k * phi(n)_, for some integer _k_
+   _d_ is kept as the private key exponent
+
+Public Key = ( _n_ , _e_)
+
+Private Key = ( _n_ , _d_ ) 
+
+Encrypt Message = c = _m^e^ mod n_
+
+Decrypt Message = m =_c^d^ mod n_
+
+
+==== "Simple" Numerical Example
+
+....
+p = 11
+q = 13
+e = 17
+
+n = p * q
+  = 11 * 13
+n = 143
+
+phi(n) = (p-1)(q-1)
+       = (11 - 1) * (13 - 1)
+       = 10 * 12
+phi(n) = 120
+
+d * e ≡ 1_
+d * e mod phi(n) = 1
+d * 17 mod 120 = 1
+....
+
+....
+113* 17 = 16 * 120 + 1
+d = 113
+
+Public Key = ( n , e)
+= ( 143 , 17 )
+
+Private Key = ( n , d )
+= ( 143 , 113 )
+
+Message = 9
+
+....
+
+Encrypt Message = _m^e^ mod n_
+= 9^17^ mod 143
+= 81
+
+Decrypt Message = _c^d^ mod n_
+= 81^113^ mod 143
+= 9
+
+Observations
+
+1. The message can not be bigger then n since the mod n would corrupt the message
+2. Encrypting and Decrypting messages is very computationally expensive since exponents of large numbers are required
+3. Stand formats for Public and Private Key containers would be useful
+
+=== Typical Use Pattern for Encryption
+
+Asymmetric key cryptography is expensive to encrypt and decrypt messages. 
+Symmetric key cryptography has no way to transfer the key
+
+Hence we combine. Use asymmetric key cryptography to security exchange a Symmetric key and exchange data
+using the symetric key. TLS, GPG et al. use this method
+ 
+
+
+
+
+
+
+

@@ -1,0 +1,71 @@
+* Hive TESTS
+user: basecamp_no_pii_user
+0: jdbc:hive2://tabbruzzese-3.gce.cloudera.co> select * from data;
+INFO  : Compiling command(queryId=hive_20200709120053_a9c35971-b1c2-4603-b2f8-80d74c6d962f): select * from data
+INFO  : Semantic Analysis Completed (retrial = false)
+INFO  : Created Hive schema: Schema(fieldSchemas:[FieldSchema(name:data.name, type:string, comment:null), FieldSchema(name:data.age, type:bigint, comment:null), FieldSchema(name:data.address, type:string, comment:null), FieldSchema(name:data.sin, type:string, comment:null), FieldSchema(name:data.credit_card, type:bigint, comment:null), FieldSchema(name:data.country, type:string, comment:null)], properties:null)
+INFO  : Completed compiling command(queryId=hive_20200709120053_a9c35971-b1c2-4603-b2f8-80d74c6d962f); Time taken: 0.628 seconds
+INFO  : Executing command(queryId=hive_20200709120053_a9c35971-b1c2-4603-b2f8-80d74c6d962f): select * from data
+INFO  : Completed executing command(queryId=hive_20200709120053_a9c35971-b1c2-4603-b2f8-80d74c6d962f); Time taken: 0.009 seconds
+INFO  : OK
++------------+-----------+---------------------------+--------------+-------------------+---------------+
+| data.name  | data.age  |       data.address        |   data.sin   | data.credit_card  | data.country  |
++------------+-----------+---------------------------+--------------+-------------------+---------------+
+| Homer      | 11        | nnn Xxxxxxxxx Xxxxxxx     | 454-764-847  | 4065980655644026  | US            |
+| David      | 11        | nn Xxxxxx Xxxxx           | 564-271-369  | 4598975618557485  | France        |
+| Mike       | 11        | n Xxxxxx Xxxxx            | 123-747-465  | 4573326746315454  | Germany       |
+| John       | 11        | nn Xxxxxx Xxxxx           | 856-345-123  | 4074517701460145  | UK            |
+| Roger      | 11        | nnnnn Xxxxx Xxxxxx Xxxxx  | 872-132-673  | 4523460102556863  | US            |
+| Natale     | 11        | nn Xxxxxxx Xxx            | 546-324-875  | 4272957000877765  | Gemany        |
+| Jane       | 11        | nnnn Xxxxxxxx Xxxx        | 465-219-877  | 4278985858313041  | US            |
+| Michelle   | 11        | nnnnn Xxxxx Xxxxx         | 901-572-980  | 4830805136877115  | Germany       |
+| Julie      | 11        | nnnn Xxxxxxxx Xxxx        | 128-976-821  | 4547755324608448  | France        |
+| Maria      | 11        | nnnn Xxxxxxx Xxxx         | 218-312-678  | 4049849647584833  | UK            |
+|            | NULL      | NULL                      | NULL         | NULL              | NULL          |
+|            | NULL      | NULL                      | NULL         | NULL              | NULL          |
++------------+-----------+---------------------------+--------------+-------------------+---------------+
+12 rows selected (0,724 seconds)
+
+user:basecamp_us_user
+
+No rows affected (0,347 seconds)
+0: jdbc:hive2://tabbruzzese-3.gce.cloudera.co> select * from data;
+INFO  : Compiling command(queryId=hive_20200709120723_22a0ce3a-de3c-4f58-9511-8fc7f881763e): select * from data
+INFO  : Semantic Analysis Completed (retrial = false)
+INFO  : Created Hive schema: Schema(fieldSchemas:[FieldSchema(name:data.name, type:string, comment:null), FieldSchema(name:data.age, type:bigint, comment:null), FieldSchema(name:data.address, type:string, comment:null), FieldSchema(name:data.sin, type:string, comment:null), FieldSchema(name:data.credit_card, type:bigint, comment:null), FieldSchema(name:data.country, type:string, comment:null)], properties:null)
+INFO  : Completed compiling command(queryId=hive_20200709120723_22a0ce3a-de3c-4f58-9511-8fc7f881763e); Time taken: 0.433 seconds
+INFO  : Executing command(queryId=hive_20200709120723_22a0ce3a-de3c-4f58-9511-8fc7f881763e): select * from data
+INFO  : Completed executing command(queryId=hive_20200709120723_22a0ce3a-de3c-4f58-9511-8fc7f881763e); Time taken: 0.013 seconds
+INFO  : OK
++------------+-----------+--------------------+--------------+-------------------+---------------+
+| data.name  | data.age  |    data.address    |   data.sin   | data.credit_card  | data.country  |
++------------+-----------+--------------------+--------------+-------------------+---------------+
+| Mike       | 45        | 1 Blaine Plaza     | 123-747-465  | 4573326746315454  | Germany       |
+| Michelle   | 23        | 07444 Welch Trail  | 901-572-980  | 4830805136877115  | Germany       |
++------------+-----------+--------------------+--------------+-------------------+---------------+
+2 rows selected (0,561 seconds)
+0: jdbc:hive2://tabbruzzese-3.gce.cloudera.co> 
+
+
+user: basecamp_evening_user
+
+Connecting to jdbc:hive2://tabbruzzese-3.gce.cloudera.com:10000/default;principal=hive/tabbruzzese-3.gce.cloudera.com@ADV.SEC.CLOUDERA.COM;ssl=true;sslTrustStore=/var/lib/cloudera-scm-agent/agent-cert/cm-auto-global_truststore.jks;sslTrustStorePassword=cloudera
+Connected to: Apache Hive (version 3.1.3000.7.1.1.0-345)
+Driver: Hive JDBC (version 3.1.3000.7.1.1.0-345)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 3.1.3000.7.1.1.0-345 by Apache Hive
+0: jdbc:hive2://tabbruzzese-3.gce.cloudera.co> ue test;
+Error: Error while compiling statement: FAILED: ParseException line 1:0 cannot recognize input near 'ue' 'test' '<EOF>' (state=42000,code=40000)
+0: jdbc:hive2://tabbruzzese-3.gce.cloudera.co> use test;
+INFO  : Compiling command(queryId=hive_20200709121205_77b5cfac-dd01-4343-a2df-e44646bfb37f): use test
+INFO  : Semantic Analysis Completed (retrial = false)
+INFO  : Created Hive schema: Schema(fieldSchemas:null, properties:null)
+INFO  : Completed compiling command(queryId=hive_20200709121205_77b5cfac-dd01-4343-a2df-e44646bfb37f); Time taken: 0.037 seconds
+INFO  : Executing command(queryId=hive_20200709121205_77b5cfac-dd01-4343-a2df-e44646bfb37f): use test
+INFO  : Starting task [Stage-0:DDL] in serial mode
+INFO  : Completed executing command(queryId=hive_20200709121205_77b5cfac-dd01-4343-a2df-e44646bfb37f); Time taken: 0.07 seconds
+INFO  : OK
+No rows affected (0,16 seconds)
+0: jdbc:hive2://tabbruzzese-3.gce.cloudera.co> select * from data;
+Error: Error while compiling statement: FAILED: HiveAccessControlException Permission denied: user [basecamp_evening_use] does not have [SELECT] privilege on [test/data/*] (state=42000,code=40000)
+0: jdbc:hive2://tabbruzzese-3.gce.cloudera.co> 

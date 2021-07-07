@@ -1,0 +1,201 @@
+[root@tabbruzzese-1 ~]# curl -u admin:admin "http://localhost:7180/api/v12/clusters/Cluster/export" 
+{
+  "cdhVersion" : "7.1.1",
+  "displayName" : "Cluster",
+  "cmVersion" : "7.1.1",
+  "repositories" : [ "https://archive.cloudera.com/p/cdh7/{latest_supported}/parcels/", "http://cloudera-build-us-west-1.vpc.cloudera.com/s3/build/2418016/cdh/7.x/parcels/", "https://archive.cloudera.com/p/cdh6/{latest_supported}/parcels/", "https://archive.cloudera.com/cdh6/{latest_supported}/parcels/", "https://archive.cloudera.com/p/cdh5/parcels/latest", "https://archive.cloudera.com/cdh5/parcels/5.16/", "https://parcels.repos.intel.com/mkl/latest", "https://archive.cloudera.com/accumulo-c5/parcels/latest/", "https://archive.cloudera.com/accumulo6/6.1/parcels/", "https://archive.cloudera.com/kafka/parcels/latest/", "http://archive.cloudera.com/kudu/parcels/latest/", "https://archive.cloudera.com/sqoop-teradata-connector1/latest/parcels/", "https://archive.cloudera.com/sqoop-netezza-connector1/latest/", "https://archive.cloudera.com/sqoop-connectors/parcels/latest/" ],
+  "products" : [ {
+    "version" : "7.1.1-1.cdh7.1.1.p0.2418016",
+    "product" : "CDH"
+  } ],
+  "services" : [ {
+    "refName" : "hive_on_tez",
+    "serviceType" : "HIVE_ON_TEZ",
+    "roleConfigGroups" : [ {
+      "refName" : "hive_on_tez-HIVESERVER2-BASE",
+      "roleType" : "HIVESERVER2",
+      "base" : true
+    } ]
+  }, {
+    "refName" : "zookeeper",
+    "serviceType" : "ZOOKEEPER",
+    "roleConfigGroups" : [ {
+      "refName" : "zookeeper-SERVER-BASE",
+      "roleType" : "SERVER",
+      "base" : true
+    } ]
+  }, {
+    "refName" : "impala",
+    "serviceType" : "IMPALA",
+    "roleConfigGroups" : [ {
+      "refName" : "impala-IMPALAD-BASE",
+      "roleType" : "IMPALAD",
+      "base" : true
+    }, {
+      "refName" : "impala-STATESTORE-BASE",
+      "roleType" : "STATESTORE",
+      "base" : true
+    }, {
+      "refName" : "impala-CATALOGSERVER-BASE",
+      "roleType" : "CATALOGSERVER",
+      "base" : true
+    } ]
+  }, {
+    "refName" : "queuemanager",
+    "serviceType" : "QUEUEMANAGER",
+    "roleConfigGroups" : [ {
+      "refName" : "queuemanager-QUEUEMANAGER_STORE-BASE",
+      "roleType" : "QUEUEMANAGER_STORE",
+      "base" : true
+    }, {
+      "refName" : "queuemanager-QUEUEMANAGER_WEBAPP-BASE",
+      "roleType" : "QUEUEMANAGER_WEBAPP",
+      "base" : true
+    } ]
+  }, {
+    "refName" : "hue",
+    "serviceType" : "HUE",
+    "serviceConfigs" : [ {
+      "name" : "database_type",
+      "variable" : "hue-database_type"
+    }, {
+      "name" : "database_port",
+      "variable" : "hue-database_port"
+    }, {
+      "name" : "database_password",
+      "variable" : "hue-database_password"
+    }, {
+      "name" : "database_host",
+      "variable" : "hue-database_host"
+    } ],
+    "roleConfigGroups" : [ {
+      "refName" : "hue-HUE_SERVER-BASE",
+      "roleType" : "HUE_SERVER",
+      "base" : true
+    }, {
+      "refName" : "hue-HUE_LOAD_BALANCER-BASE",
+      "roleType" : "HUE_LOAD_BALANCER",
+      "base" : true
+    } ]
+  }, {
+    "refName" : "hdfs",
+    "serviceType" : "HDFS",
+    "serviceConfigs" : [ {
+      "name" : "service_health_suppression_hdfs_verify_ec_with_topology",
+      "value" : "true"
+    } ],
+    "roleConfigGroups" : [ {
+      "refName" : "hdfs-NAMENODE-BASE",
+      "roleType" : "NAMENODE",
+      "base" : true
+    }, {
+      "refName" : "hdfs-SECONDARYNAMENODE-BASE",
+      "roleType" : "SECONDARYNAMENODE",
+      "base" : true
+    }, {
+      "refName" : "hdfs-DATANODE-BASE",
+      "roleType" : "DATANODE",
+      "base" : true
+    }, {
+      "refName" : "hdfs-BALANCER-BASE",
+      "roleType" : "BALANCER",
+      "base" : true
+    } ]
+  }, {
+    "refName" : "tez",
+    "serviceType" : "TEZ",
+    "roleConfigGroups" : [ {
+      "refName" : "tez-GATEWAY-BASE",
+      "roleType" : "GATEWAY",
+      "base" : true
+    } ]
+  }, {
+    "refName" : "yarn",
+    "serviceType" : "YARN",
+    "roleConfigGroups" : [ {
+      "refName" : "yarn-RESOURCEMANAGER-BASE",
+      "roleType" : "RESOURCEMANAGER",
+      "base" : true
+    }, {
+      "refName" : "yarn-NODEMANAGER-BASE",
+      "roleType" : "NODEMANAGER",
+      "base" : true
+    }, {
+      "refName" : "yarn-JOBHISTORY-BASE",
+      "roleType" : "JOBHISTORY",
+      "base" : true
+    } ]
+  }, {
+    "refName" : "hive",
+    "serviceType" : "HIVE",
+    "serviceConfigs" : [ {
+      "name" : "hive_metastore_database_type",
+      "variable" : "hive-hive_metastore_database_type"
+    }, {
+      "name" : "hive_metastore_database_password",
+      "variable" : "hive-hive_metastore_database_password"
+    }, {
+      "name" : "hive_metastore_database_port",
+      "variable" : "hive-hive_metastore_database_port"
+    } ],
+    "roleConfigGroups" : [ {
+      "refName" : "hive-GATEWAY-BASE",
+      "roleType" : "GATEWAY",
+      "base" : true
+    }, {
+      "refName" : "hive-HIVEMETASTORE-BASE",
+      "roleType" : "HIVEMETASTORE",
+      "base" : true
+    } ]
+  } ],
+  "hostTemplates" : [ {
+    "refName" : "HostTemplate-0-from-tabbruzzese-3.gce.cloudera.com",
+    "cardinality" : 1,
+    "roleConfigGroupsRefNames" : [ "hive-GATEWAY-BASE", "hive_on_tez-HIVESERVER2-BASE", "tez-GATEWAY-BASE", "zookeeper-SERVER-BASE" ]
+  }, {
+    "refName" : "HostTemplate-1-from-tabbruzzese-1.gce.cloudera.com",
+    "cardinality" : 1,
+    "roleConfigGroupsRefNames" : [ "hdfs-BALANCER-BASE", "hdfs-NAMENODE-BASE", "hive-GATEWAY-BASE", "hive-HIVEMETASTORE-BASE", "hue-HUE_LOAD_BALANCER-BASE", "hue-HUE_SERVER-BASE", "tez-GATEWAY-BASE", "zookeeper-SERVER-BASE" ]
+  }, {
+    "refName" : "HostTemplate-2-from-tabbruzzese-2.gce.cloudera.com",
+    "cardinality" : 1,
+    "roleConfigGroupsRefNames" : [ "hdfs-SECONDARYNAMENODE-BASE", "hive-GATEWAY-BASE", "impala-CATALOGSERVER-BASE", "impala-STATESTORE-BASE", "queuemanager-QUEUEMANAGER_STORE-BASE", "queuemanager-QUEUEMANAGER_WEBAPP-BASE", "tez-GATEWAY-BASE", "yarn-JOBHISTORY-BASE", "yarn-RESOURCEMANAGER-BASE", "zookeeper-SERVER-BASE" ]
+  }, {
+    "refName" : "HostTemplate-3-from-tabbruzzese-[4-6].gce.cloudera.com",
+    "cardinality" : 3,
+    "roleConfigGroupsRefNames" : [ "hdfs-DATANODE-BASE", "hive-GATEWAY-BASE", "impala-IMPALAD-BASE", "tez-GATEWAY-BASE", "yarn-NODEMANAGER-BASE" ]
+  } ],
+  "instantiator" : {
+    "clusterName" : "<changeme>",
+    "hosts" : [ {
+      "hostName" : "<changeme>",
+      "hostTemplateRefName" : "<changeme>"
+    }, {
+      "hostNameRange" : "<HOST[0001-0002]>",
+      "hostTemplateRefName" : "<changeme>"
+    } ],
+    "variables" : [ {
+      "name" : "hive-hive_metastore_database_password",
+      "value" : "<changeme>"
+    }, {
+      "name" : "hive-hive_metastore_database_port",
+      "value" : "5432"
+    }, {
+      "name" : "hive-hive_metastore_database_type",
+      "value" : "postgresql"
+    }, {
+      "name" : "hue-database_host",
+      "value" : "tabbruzzese-1.gce.cloudera.com"
+    }, {
+      "name" : "hue-database_password",
+      "value" : "<changeme>"
+    }, {
+      "name" : "hue-database_port",
+      "value" : "5432"
+    }, {
+      "name" : "hue-database_type",
+      "value" : "postgresql"
+    } ],
+    "lenient" : false
+  }
+}

@@ -1,0 +1,169 @@
+
+= Cloudera Security Introduction.
+
+In the 1.0 version of every components that makes up the CDP stack there was
+no security.
+
+* Security was an add on for every component
+* Might see some idiosyncrasies
+* Needs to be extendable
+* Sometimes not consistent across products in our stack ( though we are working on it ).
+
+When developing a security framework
+
+* Integrate with known technologies
+** Don't role your own if you can, too much heavy lifting
+** Too risky as lots of security integration
+* Using know tested libraries
+** Make sure they are constantly tested
+** New vulnerabilities come up all of the time you don't want to hold the bag every time
+* Consider end users.
+** The hard it is it use, the more they will compromise security
+** They they have 50 password there will be a password.txt in the desktop
+
+== Cloudera Security Overview
+
+10,000 ft view of what it means to secure a CDP deployment.
+
+Remember we are *securing Data*. We need to block:
+* access to data
+* access to tools that can give you access today
+* access to information that help you get access to data
+
+Everything else we don't care about
+
+=== Security Pillars and products
+
+* Authentication ( Who are you )
+** Some way to uniquely identify who are you
+** SSO capabilities are needed as you don't constantly ask for password
+* Authorization ( What are you allowed to do )
+** Usually based on membership for some sort to
+* Encryption ( No peaking )
+** Wire encryption messages sent over the network
+** On Disk encryption to stop dumpster diving
+* Auditing ( Trust but verify )
+** Need a tool to capture and warn if something unusually is occurring
+** If something happens need to be able to to forensics
+* Perimeter ( Minimize exposure )
+** The fewer ways for an attacker to get in the better
+** Don't want to spread out too thin. Closing doors let's you focus on key areas
+
+=== Security By Pillar
+
+Authentication:
+
+* Kerberos
+** all you need to know `export HADOOP_USER_NAME=hdfs` needs to be stopped
+** Great for SSO like capabilities, no re-entering passwords
+* KNOX
+** Many UIs in CDP, with different authentication mechanisms.
+** KNOX is one gateway to rule them all
+** Also great for SSO like capabilities, one login to KNOX is all you need
+
+Authorization:
+
+* Ranger
+** Once you login, not all data should be available
+** Plugin based framework, one plugin per service in CDP
+** Policy based system for allowing and denying access to data
+** Based on Data Tagging and or group membership
+* Atlas
+** Keep track for tags for athorization
+** Great if you want to grough things together by human logic
+* HDFS
+** Built in ACLS
+** Standard link:https://en.wikipedia.org/wiki/POSIX[POSIX] stuff, can be used when ranger plus is no there.
+
+Wire Encryption:
+
+* Transparent Data Encryption
+** If bypassing authentication no access to data in HDFS
+* Navigator Encrypt
+** If bypassing authentication no access to data ( for Kafka and Kudu )
+
+Auditing
+
+* Provided by Ranger
+** Plugin framework
+** Stores audio information in central backend ( HDFS or Solr ).
+** Solr only for n day Cache for rapid search
+
+=== Critical Integration
+
+* Users from Kerberos
+* Groups from directory service
+* Groups sometimes pulled from OS
+
+Needs:
+
+1. Kerberos and Directory service to share user cache.
+2. OS and Directory service show the same users and groups
+
+==== Kerberos and Directory service integration
+
+Three Options
+
+1. Microsoft Active Directory
+1. IBM / Redhat IPA
+1. Role your own ( manual integration of Kerberos and Directory service
+* DON'T DO MANUAL INTEGRATION. TOO BRITTLE, TOO HARD.
+
+==== OS and Directory service integration
+
+Two options
+
+1. Centrify
+* Costs Money
+1. SSSD
+* Free, built into linux
+
+We don't care, both work just down use Winbind, it's too slow and crashes our system.
+
+
+=== Microsoft Active Directory ( AD )
+
+Active directory is a bundeling of different security products by Microsoft.
+Included in Active Directory are the following components which will be used for securing the Hadoop Cluster
+
+*  Kerberos
+*  Directory Service
+*  Certificate Authority
+*  NTP
+*  DNS
+
+Features:
+
+* Kerberos and Directory Service pre integrated
+* Active Directory can be used as a single source of truth for both authentication and authorization
+* User in Kerberos same as users in Directory, with same password
+* Desktops usually interacted with AD so same password as login.
+
+
+=== Free IPA / RedHat IdM
+
+IPA is a packaging of different open source tools to provide complete security solution,
+* very similar to Microsoft Active Directory but only for Linux
+
+Integrated security information management solution combining:
+
+*  MIT Kerberos
+*  389 Directory Server
+*  Dogtag certificate system
+*  NTP
+*  DNS
+*  SSSD
+
+Integration to IPA is very similar to AD or the individual products.
+
+
+=== Order of operations for security deployment:
+
+1. Configure and Enable TLS encryption on the cluster
+1. Configure and enable Kerberos on the Hadoop cluster
+1. Deploy OS Ldap binding ( SSSD )
+1. Configure KNOX for Cloudera Manager, HUE, Impala and Hive and other interfaces
+1. Enable and configure Ranger
+1. Depoy Atlas and configure Ranger integration
+1. Deploy data at rest Encryption
+1. Perform Security Hardening
